@@ -1,0 +1,10 @@
+﻿  integrator.cpp
+  renderer.cpp
+  main.cpp
+  renderpass.cpp
+  Generating Code...
+E:\Documents\Courses\5th_Year\F19\ECSE546\fall-2019\src\core\integrator.cpp(42,5): warning C4018:  '<': signed/unsigned mismatch
+  tinyrender.vcxproj -> E:\Documents\Courses\5th_Year\F19\ECSE546\fall-2019\bin\Debug\tinyrender.exe
+  E:\Documents\Courses\5th_Year\F19\ECSE546\fall-2019\externals\opengl\dll\glew32.dll
+  E:\Documents\Courses\5th_Year\F19\ECSE546\fall-2019\externals\opengl\dll\SDL2.dll
+  2 File(s) copied
