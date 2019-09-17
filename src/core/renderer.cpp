@@ -124,7 +124,26 @@ void Renderer::render() {
          * 5) Splat their contribution onto the image plane.
 		 * HINT: All configuration options and camera properties can be found in object `scene.config`.
          */
-        // TODO(A1): Implement this
+
+		// fov is the field of view in degree. 
+		float fov = scene.config.camera.fov;
+		// Vector contains the coordinate of the central pixel that camera is looking at. 
+		v3f at = scene.config.camera.at;
+		// Vector indicating the upward direction of the camera view. 
+		v3f up = scene.config.camera.up;
+		// Vector indicating the original of the camera. 
+		v3f eye = scene.config.camera.o;
+
+		int imageHeight = scene.config.height;
+		int imageWidth = scene.config.width;
+
+		// Calculate the camera-to-world transformation matrix.
+		glm::mat4 inverseView = glm::inverse(glm::lookAt(eye, at, up));
+
+		// Calculate the aspect ratio to scale the pixel location. 
+		float scale = tan(deg2rad * fov/ 2.f);
+
+		//int random = 1;
     }
 }
 
