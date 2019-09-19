@@ -134,16 +134,58 @@ void Renderer::render() {
 		// Vector indicating the original of the camera. 
 		v3f eye = scene.config.camera.o;
 
-		int imageHeight = scene.config.height;
-		int imageWidth = scene.config.width;
-
 		// Calculate the camera-to-world transformation matrix.
 		glm::mat4 inverseView = glm::inverse(glm::lookAt(eye, at, up));
 
-		// Calculate the aspect ratio to scale the pixel location. 
-		float scale = tan(deg2rad * fov/ 2.f);
+		// Calculate the aspect ratio. 
+		int imageWidth = scene.config.width;
+		int imageHeight = scene.config.height;
 
-		//int random = 1;
+		float hfov = tan(deg2rad * (fov / 2.f));
+		float vfov = tan(deg2rad * (fov / 2.f));
+
+		float aspectRatio = hfov / vfov;
+
+		// Clear RGB buffer. 
+		integrator->init();
+
+		float px, py;
+		Sampler* sampler = new Sampler(260685967);
+
+		// Loop through all the pixels on the screen. 
+		for (int x = 0; x < imageWidth; x++) {
+			for (int y = 0; y < imageHeight; y++) {
+				// Define px and py stores the pixel center location.
+				// the sign of px after shift will remain the same. 
+				// px = (x - w/2) / (w / 2) => 2x/w - 1.
+
+				// TODO: Clarify with the TA about the fov thing, and decide which line to implement. 
+				px = ((2 * (x + 0.5) / imageWidth) - 1) * aspectRatio * hfov;
+
+				// sign of py needs to be fliped. 
+				// py = -[(y - h/2) / (h / 2)] => 1 - 2y/h
+				//float py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
+				py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
+
+				// Construct a ray from the camera origin to the pixel. 
+				// First calculate the direction. 
+				v4f pix, rayDir;
+				pix.x = px;
+				pix.y = py;
+				pix.w = 1;
+				pix.z = 1;
+				rayDir = pix * inverseView;
+
+				// generate a ray through the pixel. 
+				Ray* ray = new Ray(eye, rayDir);
+
+				// Call integrator. 
+				v3f color = integrator->render(*ray, *sampler);
+
+				// Collect the returned radiance contribution from the integrator and output the image buffer. 
+				integrator->rgb->data[x + (y * scene.config.width)] = color;
+			}
+		}
     }
 }
 
