@@ -133,6 +133,8 @@ void Renderer::render() {
 		v3f up = scene.config.camera.up;
 		// Vector indicating the original of the camera. 
 		v3f eye = scene.config.camera.o;
+		// Retrieve the number of samples per pixel. 
+		int spp = scene.config.spp;
 
 		// Calculate the camera-to-world transformation matrix.
 		glm::mat4 inverseView = glm::inverse(glm::lookAt(eye, at, up));
@@ -149,41 +151,77 @@ void Renderer::render() {
 		// Clear RGB buffer. 
 		integrator->init();
 
+		// Declare variables used in the for-loop. 
 		float px, py;
+		v3f color;
+		v4f pix, rayDir;
+		Ray* ray;
 		Sampler* sampler = new Sampler(260685967);
 
 		// Loop through all the pixels on the screen. 
 		for (int x = 0; x < imageWidth; x++) {
 			for (int y = 0; y < imageHeight; y++) {
-				// Define px and py stores the pixel center location.
-				// the sign of px after shift will remain the same. 
-				// px = (x - w/2) / (w / 2) => 2x/w - 1.
+				if (spp > 1) {
+					// Perform multisampling per pixel. 
+					// Create a temporary color. 
+					v3f sampleColor;
 
-				// TODO: Clarify with the TA about the fov thing, and decide which line to implement. 
-				px = ((2 * (x + 0.5) / imageWidth) - 1) * aspectRatio * hfov;
+					for (int i = 0; i < spp; i++) {
+						float dx = sampler->next();
+						float dy = sampler->next();
 
-				// sign of py needs to be fliped. 
-				// py = -[(y - h/2) / (h / 2)] => 1 - 2y/h
-				//float py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
-				py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
+						// Use px and py to store the location of the sample. 
+						px = ((2 * (x + dx) / imageWidth) - 1) * aspectRatio * hfov;
+						py = (1 - (2 * (y + dy) / imageHeight)) * aspectRatio * vfov;
 
-				// Construct a ray from the camera origin to the pixel. 
-				// First calculate the direction. 
-				v4f pix, rayDir;
-				pix.x = px;
-				pix.y = py;
-				pix.w = 1;
-				pix.z = 1;
-				rayDir = pix * inverseView;
+						pix.x = px;
+						pix.y = py;
+						pix.w = 1;
+						pix.z = 1;
+						rayDir = pix * inverseView;
 
-				// generate a ray through the pixel. 
-				Ray* ray = new Ray(eye, rayDir);
+						ray = new Ray(eye, rayDir);
+						sampleColor = integrator->render(*ray, *sampler);
 
-				// Call integrator. 
-				v3f color = integrator->render(*ray, *sampler);
+						color.x += sampleColor.x;
+						color.y += sampleColor.y;
+						color.z += sampleColor.z;
+					}
+
+					color.x /= spp;
+					color.y /= spp;
+					color.z /= spp;
+				}
+				else {
+					// Define px and py stores the pixel center location.
+					// the sign of px after shift will remain the same. 
+					// px = (x - w/2) / (w / 2) => 2x/w - 1. 
+
+					// TODO: Clarify with the TA about the fov thing, and decide which line to implement. 
+					px = ((2 * (x + 0.5) / imageWidth) - 1) * aspectRatio * hfov;
+
+					// sign of py needs to be fliped. 
+					// py = -[(y - h/2) / (h / 2)] => 1 - 2y/h
+					//float py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
+					py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
+
+					// Construct a ray from the camera origin to the pixel. 
+					// First calculate the direction. 
+					pix.x = px;
+					pix.y = py;
+					pix.w = 1;
+					pix.z = 1;
+					rayDir = pix * inverseView;
+
+					// generate a ray through the pixel. 
+					ray = new Ray(eye, rayDir);
+
+					// Call integrator. 
+					color = integrator->render(*ray, *sampler);
+				}
 
 				// Collect the returned radiance contribution from the integrator and output the image buffer. 
-				integrator->rgb->data[x + (y * scene.config.width)] = color;
+				integrator->rgb->data[x + y * imageWidth] = color;
 			}
 		}
     }
