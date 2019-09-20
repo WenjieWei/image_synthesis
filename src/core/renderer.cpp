@@ -113,6 +113,22 @@ void Renderer::render() {
          * 3) Output the rendered image into the GUI window using SDL_GL_SwapWindow(renderpass->window).
          */
         // TODO(A1): Implement this
+
+		// Start an infinite loop first. 
+		while (1) {
+			// Detect the quit event. 
+			SDL_Event event;
+			
+			if (SDL_PollEvent(&event)) {
+				if (event.type == SDL_QUIT) {
+					break;
+				}
+				else {
+					renderpass->render();
+					SDL_GL_SwapWindow(renderpass->window);
+				}
+			}
+		}
     } else {
         /**
          * 1) Calculate the camera perspective, the camera-to-world transformation matrix and the aspect ratio.
@@ -124,8 +140,7 @@ void Renderer::render() {
          * 5) Splat their contribution onto the image plane.
 		 * HINT: All configuration options and camera properties can be found in object `scene.config`.
          */
-
-		// fov is the field of view in degree. 
+		 // fov is the field of view in degree. 
 		float fov = scene.config.camera.fov;
 		// Vector contains the coordinate of the central pixel that camera is looking at. 
 		v3f at = scene.config.camera.at;
@@ -137,7 +152,7 @@ void Renderer::render() {
 		int spp = scene.config.spp;
 
 		// Calculate the camera-to-world transformation matrix.
-		glm::mat4 inverseView = glm::inverse(glm::lookAt(eye, at, up));
+		glm::mat4 inverseView = glm::transpose(glm::lookAt(eye, at, up));
 
 		// Calculate the aspect ratio. 
 		int imageWidth = scene.config.width;
@@ -146,81 +161,52 @@ void Renderer::render() {
 		float hfov = tan(deg2rad * (fov / 2.f));
 		float vfov = tan(deg2rad * (fov / 2.f));
 
-		float aspectRatio = hfov / vfov;
+		// Assume width >= height. 
+		float aspectRatio = (float)imageWidth / (float)imageHeight;
 
 		// Clear RGB buffer. 
 		integrator->init();
 
 		// Declare variables used in the for-loop. 
 		float px, py;
-		v3f color;
-		v4f pix, rayDir;
-		Ray* ray;
+		v3f color, rayDir, sampleColor;
+		v4f pix;
 		Sampler* sampler = new Sampler(260685967);
 
 		// Loop through all the pixels on the screen. 
-		for (int x = 0; x < imageWidth; x++) {
-			for (int y = 0; y < imageHeight; y++) {
-				if (spp > 1) {
-					// Perform multisampling per pixel. 
-					// Create a temporary color. 
-					v3f sampleColor;
+		for (int x = 0; x < imageWidth; ++x) {
+			for (int y = 0; y < imageHeight; ++y) {
+				// Initialize the sample color to 0.
+				sampleColor = v3f(0.f, 0.f, 0.f);
+				float dx, dy;
 
-					for (int i = 0; i < spp; i++) {
-						float dx = sampler->next();
-						float dy = sampler->next();
-
-						// Use px and py to store the location of the sample. 
-						px = ((2 * (x + dx) / imageWidth) - 1) * aspectRatio * hfov;
-						py = (1 - (2 * (y + dy) / imageHeight)) * aspectRatio * vfov;
-
-						pix.x = px;
-						pix.y = py;
-						pix.w = 1;
-						pix.z = 1;
-						rayDir = pix * inverseView;
-
-						ray = new Ray(eye, rayDir);
-						sampleColor = integrator->render(*ray, *sampler);
-
-						color.x += sampleColor.x;
-						color.y += sampleColor.y;
-						color.z += sampleColor.z;
+				// Loop through all the samples per pixel. 
+				for (int i = 0; i < spp; ++i) {
+					if (spp > 1) {
+						dx = sampler->next();
+						dy = sampler->next();
+					}
+					else {
+						dx = 0.5;
+						dy = 0.5;
 					}
 
-					color.x /= spp;
-					color.y /= spp;
-					color.z /= spp;
-				}
-				else {
-					// Define px and py stores the pixel center location.
-					// the sign of px after shift will remain the same. 
-					// px = (x - w/2) / (w / 2) => 2x/w - 1. 
+					px = ((2 * (x + dx) / imageWidth) - 1) * aspectRatio * hfov;
+					py = (1 - (2 * (y + dy) / imageHeight)) * vfov;
 
-					// TODO: Clarify with the TA about the fov thing, and decide which line to implement. 
-					px = ((2 * (x + 0.5) / imageWidth) - 1) * aspectRatio * hfov;
-
-					// sign of py needs to be fliped. 
-					// py = -[(y - h/2) / (h / 2)] => 1 - 2y/h
-					//float py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
-					py = (1 - (2 * (y + 0.5) / imageHeight)) * aspectRatio * vfov;
-
-					// Construct a ray from the camera origin to the pixel. 
-					// First calculate the direction. 
-					pix.x = px;
-					pix.y = py;
-					pix.w = 1;
-					pix.z = 1;
-					rayDir = pix * inverseView;
-
-					// generate a ray through the pixel. 
-					ray = new Ray(eye, rayDir);
-
-					// Call integrator. 
-					color = integrator->render(*ray, *sampler);
+					// Define the pixel location. 
+					pix = v4f(px, py, -1, 1);
+					// Calculate the ray direction. 
+					rayDir = v3f(inverseView * pix);
+					// Construct the ray through that pixel. 
+					Ray ray = Ray(eye, rayDir);
+					// Calculate the sampleColor.
+					// This color will be storing the temporary summation, and eventually divided to get the average. 
+					sampleColor += integrator->render(ray, *sampler);
 				}
 
-				// Collect the returned radiance contribution from the integrator and output the image buffer. 
+				// Divide the sample color by the number of samples to get the average. 
+				color = sampleColor / spp;
 				integrator->rgb->data[x + y * imageWidth] = color;
 			}
 		}
