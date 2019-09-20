@@ -19,22 +19,22 @@ struct NormalIntegrator : Integrator {
     explicit NormalIntegrator(const Scene& scene) : Integrator(scene) { }
 
     v3f render(const Ray& ray, Sampler& sampler) const override {
-
         // HINT: Use the scene.bvh->intersect method. It's definition is in src/accel.h
         // TODO(A1): Implement this
+		
 		SurfaceInteraction act;
 		bool hit = scene.bvh->intersect(ray, act);
+		v3f color;
 
 		if (!hit) {
 			// No hit, color is black.
-			v3f color(0.f, 0.f, 0.f);
-			return color;
+			color = v3f(0.f, 0.f, 0.f);
 		}
 		else {
 			// Retrieve the normal at the hit point. 
-			v3f color = glm::abs(act.frameNg.n);
-			return color;
+			color = glm::abs(act.frameNs.n);
 		}
+		return color;
     }
 };
 
