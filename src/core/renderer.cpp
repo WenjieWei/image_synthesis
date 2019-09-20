@@ -113,6 +113,22 @@ void Renderer::render() {
          * 3) Output the rendered image into the GUI window using SDL_GL_SwapWindow(renderpass->window).
          */
         // TODO(A1): Implement this
+
+		// Start an infinite loop first. 
+		while (1) {
+			// Detect the quit event. 
+			SDL_Event event;
+			
+			if (SDL_PollEvent(&event)) {
+				if (event.type == SDL_QUIT) {
+					break;
+				}
+				else {
+					renderpass->render();
+					SDL_GL_SwapWindow(renderpass->window);
+				}
+			}
+		}
     } else {
         /**
          * 1) Calculate the camera perspective, the camera-to-world transformation matrix and the aspect ratio.
