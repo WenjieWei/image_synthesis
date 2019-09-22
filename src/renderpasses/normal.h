@@ -96,12 +96,13 @@ struct NormalPass : RenderPass {
 
 			// Bind vertex array. Input is of definition GLuint array. 
 			// def in renderpass.h
-			glBindVertexArray(object.vbo);
+			glBindVertexArray(object.vao);
 
 			// Draw triangles. obj.nVerts records # of vertices. 
 			// GLint = ???
 			// What is GLenum??? 
-			glDrawArrays(, , object.nVerts);
+			//http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
+			glDrawArrays(GL_TRIANGLES, 0, object.nVerts);
 
 			glBindVertexArray(0);
         }

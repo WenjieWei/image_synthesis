@@ -21,4 +21,12 @@ out vec3 vNormal;
 void main()
 {
     // TODO(A1): Implement this
+	// High level: 
+	// 1. Take Triangles,
+	// 2. Figure out which pixels they cover. 
+	// 3. Perform computations over the pixels. 
+	
+	// Calculate the MVP Matrix. 
+	gl_Position = projection * view * model * vec4(position, 1); 
+	vNormal = abs(normal);
 }

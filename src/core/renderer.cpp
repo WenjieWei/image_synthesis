@@ -112,8 +112,7 @@ void Renderer::render() {
          * 2) Call the render function using renderpass->render().
          * 3) Output the rendered image into the GUI window using SDL_GL_SwapWindow(renderpass->window).
          */
-        // TODO(A1): Implement this
-
+        // TODO(A1): Implement th
 		// Start an infinite loop first. 
 		while (1) {
 			// Detect the quit event. 
@@ -124,6 +123,7 @@ void Renderer::render() {
 					break;
 				}
 				else {
+					renderpass->updateCamera(event);
 					renderpass->render();
 					SDL_GL_SwapWindow(renderpass->window);
 				}
@@ -152,7 +152,7 @@ void Renderer::render() {
 		int spp = scene.config.spp;
 
 		// Calculate the camera-to-world transformation matrix.
-		glm::mat4 inverseView = glm::transpose(glm::lookAt(eye, at, up));
+		glm::mat4 inverseView = glm::inverse(glm::lookAt(eye, at, up));
 
 		// Calculate the aspect ratio. 
 		int imageWidth = scene.config.width;
@@ -191,13 +191,16 @@ void Renderer::render() {
 						dy = 0.5;
 					}
 
+					// px = (x - w/2) / (w / 2) => 2x/w - 1.
 					px = ((2 * (x + dx) / imageWidth) - 1) * aspectRatio * hfov;
 					py = (1 - (2 * (y + dy) / imageHeight)) * vfov;
 
 					// Define the pixel location. 
 					pix = v4f(px, py, -1, 1);
 					// Calculate the ray direction. 
-					rayDir = v3f(inverseView * pix);
+					// Be careful not to mix up the coordinates here. 
+					// eye is in world coordinates, but pix is in camera coordinates. 
+					rayDir = v3f(inverseView * (pix - v4f(0.f, 0.f, 0.f, 1.f)));
 					// Construct the ray through that pixel. 
 					Ray ray = Ray(eye, rayDir);
 					// Calculate the sampleColor.
