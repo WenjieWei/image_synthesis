@@ -26,7 +26,6 @@ void main()
 	// 2. Figure out which pixels they cover. 
 	// 3. Perform computations over the pixels. 
 	
-	// Calculate the MVP Matrix. 
-	gl_Position = projection * view * model * vec4(position, 1); 
+	gl_Position = projection * view * model * vec4(position, 1.f); 
 	vNormal = abs(normal);
 }
