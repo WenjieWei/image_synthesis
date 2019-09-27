@@ -171,24 +171,19 @@ void Renderer::render() {
 		integrator->init();
 
 		// Declare variables used in the for-loop. 
-		float px, py;
-		v3f color, rayDir, sampleColor;
-		v4f pix;
-		Sampler* sampler = new Sampler(260685967);
-
 		// Loop through all the pixels on the screen. 
 		// Use the ThreadPool::ParallelFor(...) to improve performance. 
-		//for (int x = 0; x < imageWidth; ++x) {
-/*#ifdef NDEBUG // Running in release mode - use threads
-	ThreadPool::ParallelFor(0, imageWidth, [&] (int x) {
+#ifdef NDEBUG // Running in release mode - use threads
+	ThreadPool::ParallelFor(0, imageHeight, [&] (int y) {
 #else // Running in debug mode - Don't use threads.
-	ThreadPool::SequentialFor(0, imageWidth, [&](int x) {
-#endif*/
-		// Multi-threading is having synchronization issue. 
-		// Regular for loop is used here. Will try to resolve this issue for the coming assignments. 
+		ThreadPool::SequentialFor(0, imageHeight, [&](int y) {
+#endif
+			Sampler* sampler = new Sampler(260685967);
+			float px, py;
+			v3f color, rayDir, sampleColor;
+			v4f pix;
 
-		for(int x = 0; x < imageWidth; ++x){
-			for (int y = 0; y < imageHeight; ++y) {
+			for (int x = 0; x < imageWidth; x++) {
 				// Initialize the sample color to 0.
 				sampleColor = v3f(0.f, 0.f, 0.f);
 				float dx, dy;
@@ -223,9 +218,9 @@ void Renderer::render() {
 
 				// Divide the sample color by the number of samples to get the average. 
 				color = sampleColor / spp;
-				integrator->rgb->data[x + y * imageWidth] = color;
+				integrator->rgb->data[y * imageWidth + x] = color;
 			}
-		}
+		});
 	}
 }
 
