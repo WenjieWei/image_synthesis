@@ -178,7 +178,7 @@ void Renderer::render() {
 #else // Running in debug mode - Don't use threads.
 		ThreadPool::SequentialFor(0, imageHeight, [&](int y) {
 #endif
-			Sampler* sampler = new Sampler(260685967);
+			Sampler* sampler = new Sampler(260685967 + y);
 			float px, py;
 			v3f color, rayDir, sampleColor;
 			v4f pix;

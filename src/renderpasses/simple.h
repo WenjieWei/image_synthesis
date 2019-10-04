@@ -85,7 +85,7 @@ struct SimplePass : RenderPass {
 
             GLuint camPosUniform = GLuint(glGetUniformLocation(obj.shaderID, "camPos"));
             glUniform3f(camPosUniform, camera.camera_position.x, camera.camera_position.y, camera.camera_position.z);
-
+			
             // Pass light position & power via uniforms
             //   this->lightPos
             //   this->lightIntensity
@@ -105,6 +105,8 @@ struct SimplePass : RenderPass {
              * 3) Bind vertex array to 0.
              */
             // TODO(A2): Implement this
+			// GLUniform: https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml
+
         }
 
         RenderPass::render();
