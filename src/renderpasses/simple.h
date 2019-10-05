@@ -85,8 +85,8 @@ struct SimplePass : RenderPass {
 
             GLuint camPosUniform = GLuint(glGetUniformLocation(obj.shaderID, "camPos"));
             glUniform3f(camPosUniform, camera.camera_position.x, camera.camera_position.y, camera.camera_position.z);
-			
-            // Pass light position & power via uniforms
+
+			// Pass light position & power via uniforms
             //   this->lightPos
             //   this->lightIntensity
             // TODO(A2): Implement this
@@ -104,9 +104,38 @@ struct SimplePass : RenderPass {
              * 2) Draw its triangles.
              * 3) Bind vertex array to 0.
              */
-            // TODO(A2): Implement this
-			// GLUniform: https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml
 
+			// Pass light position & power via uniforms
+			// Definitions of the obj in renderpass.h
+			GLuint lightPos = GLuint(glGetUniformLocation(obj.shaderID, "lightPos"));
+			GLuint lightIntensity = GLuint(glGetUniformLocation(obj.shaderID, "lightIntensity"));
+
+			glUniform3f(lightPos, this->lightPos.x, this->lightPos.y, this->lightPos.z);
+			glUniform3f(lightIntensity, this->lightIntensity.x, this->lightIntensity.y, this->lightIntensity.z);
+
+			// Pass shader-specific parameters via uniforms
+			if (obj.shaderIdx == DIFFUSE_SHADER_IDX) {
+				// Shader index is the same as the diffuse shader index. 
+				GLuint albedo = GLuint(glGetUniformLocation(obj.shaderID, "albedo"));
+
+				glUniform3f(albedo, obj.albedo.x, obj.albedo.y, obj.albedo.z);
+			}
+			else if (obj.shaderIdx == PHONG_SHADER_IDX) {
+				// Shader index is the same as the phong shader index.
+				GLuint rho_d = GLuint(glGetUniformLocation(obj.shaderID, "rho_d"));
+				GLuint rho_s = GLuint(glGetUniformLocation(obj.shaderID, "rho_s"));
+				GLuint exponent = GLuint(glGetUniformLocation(obj.shaderID, "exponent"));
+
+				glUniform3f(rho_d, obj.rho_d.x, obj.rho_d.y, obj.rho_d.z);
+				glUniform3f(rho_s, obj.rho_s.x, obj.rho_s.y, obj.rho_s.z);
+				glUniform1f(exponent, obj.exponent);
+			}
+
+			// Bind vertex array. Input is of definition GLuint array. 
+			glBindVertexArray(obj.vao);
+			// Draw triangles. obj.nVerts records # of vertices. 
+			glDrawArrays(GL_TRIANGLES, 0, obj.nVerts);
+			glBindVertexArray(0);
         }
 
         RenderPass::render();

@@ -22,8 +22,8 @@ struct NormalIntegrator : Integrator {
         // HINT: Use the scene.bvh->intersect method. It's definition is in src/accel.h
         // TODO(A1): Implement this
 		
-		SurfaceInteraction act;
-		bool hit = scene.bvh->intersect(ray, act);
+		SurfaceInteraction interaction;
+		bool hit = scene.bvh->intersect(ray, interaction);
 		v3f color;
 
 		if (!hit) {
@@ -32,7 +32,7 @@ struct NormalIntegrator : Integrator {
 		}
 		else {
 			// Retrieve the normal at the hit point. 
-			color = glm::abs(act.frameNs.n);
+			color = glm::abs(interaction.frameNs.n);
 		}
 		return color;
     }
