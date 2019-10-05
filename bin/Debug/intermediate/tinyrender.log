@@ -1,4 +1,6 @@
 ﻿  renderer.cpp
+  renderpass.cpp
+  Generating Code...
   tinyrender.vcxproj -> E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\bin\Debug\tinyrender.exe
   E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\externals\opengl\dll\glew32.dll
   E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\externals\opengl\dll\SDL2.dll

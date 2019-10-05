@@ -39,7 +39,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bsdfs\mixture.h">
-          <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\accel.h">
       <Filter>Header Files</Filter>
@@ -101,5 +101,19 @@
     <ClInclude Include="src\renderpasses\gi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderpasses\simple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\diffuse.fs" />
+    <None Include="src\shaders\emitter.fs" />
+    <None Include="src\shaders\gi.fs" />
+    <None Include="src\shaders\gi.vs" />
+    <None Include="src\shaders\normal.fs" />
+    <None Include="src\shaders\normal.vs" />
+    <None Include="src\shaders\simple.vs" />
+    <None Include="src\shaders\srgb.fs" />
+    <None Include="src\shaders\phong.fs" />
   </ItemGroup>
 </Project>

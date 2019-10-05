@@ -69,29 +69,29 @@ struct PhongBSDF : BSDF {
 		if (Frame::cosTheta(i.wi) >= 0 && Frame::cosTheta(i.wo) >= 0) {
 			// Perform step 2. 
 			// Multiply p_d and p_s by PhongBSDF::scale to follow the energy law. 
-			v3f p_d = diffuseReflectance->eval(worldData, i) * PhongBSDF::scale;
-			v3f p_s = specularReflectance->eval(worldData, i) * PhongBSDF::scale;
+			v3f rho_d = diffuseReflectance->eval(worldData, i) * PhongBSDF::scale;
+			v3f rho_s = specularReflectance->eval(worldData, i) * PhongBSDF::scale;
 
 			// Compute the Phong exponent. Do similar evaluations as diffuse cases. 
 			float n = exponent->eval(worldData, i);
 
 			// Compute the perfect specular direction w_r by using PhongBSDF::reflect();
-			v3f w_r = PhongBSDF::reflect(i.wi);
+			v3f wr = PhongBSDF::reflect(i.wi);
 
 			// Compute the cosine of alpha. 
 			// alpha is the angle between w_r and lighting direction. Cosine becomes the dot product of the two vectors. 
 			// a * b = |a||b|cos(theta). -> cos(theta) = a*b / (|a||b|).
-			float cosine = glm::dot(i.wo, w_r) / (glm::length(i.wo) * glm::length(w_r));
+			float cosine = glm::dot(i.wo, wr) / (glm::length(i.wo) * glm::length(wr));
 
 			// TODO: cosine = 0 when cosine < 0?
 			// Overwrite cosine by cosine with exponential. 
 			cosine = pow(cosine, n);
 
 			if (cosine >= 0) {
-				val = (p_d / M_PI + (p_s * (n + 2) * cosine) / (2 * M_PI)) * Frame::cosTheta(glm::normalize(i.wi));
+				val = (rho_d / M_PI + (rho_s * (n + 2) * cosine) / (2 * M_PI)) * Frame::cosTheta(glm::normalize(i.wi));
 			}
 			else {
-				val = p_d / M_PI * Frame::cosTheta(glm::normalize(i.wi));
+				val = rho_d / M_PI * Frame::cosTheta(glm::normalize(i.wi));
 			}
 		}
 		else {
