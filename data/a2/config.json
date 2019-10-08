@@ -19,10 +19,6 @@
     {
       "scene": "Cbox (real-time)",
       "render": "realtime/cbox_simple_realtime.exr"
-    },
-    {
-      "scene": "Bonus: Teapot with shadow mapping",
-      "render": "realtime/teapot_simple_realtime_bonus.exr"
     }
 	]
 }
