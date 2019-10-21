@@ -36,8 +36,7 @@ struct DiffuseBSDF : BSDF {
         v3f val(0.f);
 
         // TODO(A2): Implement this
-
-		if (Frame::cosTheta(i.wi) >= 0 && Frame::cosTheta(i.wo) >= 0) {
+        if (Frame::cosTheta(i.wi) >= 0 && Frame::cosTheta(i.wo) >= 0) {
 			// P20 from powerpoint: 01-1. 
 			// L = (rho / pi) * Li * max(0, n dot l), l is the incident light vector. 
 			// Need to normalize the incident light when calculating cosine as cosTheta function: 
@@ -48,7 +47,7 @@ struct DiffuseBSDF : BSDF {
 			// return black. 
 			val = v3f(0.f, 0.f, 0.f);
 		}
-
+        
         return val;
     }
 

@@ -121,54 +121,124 @@ namespace Warp {
 inline v3f squareToUniformSphere(const p2f& sample) {
     v3f v(0.f);
     // TODO(A3): Implement this
+	// p42 of 03-Monte-Carlo-I
+	// zeta_1 is the first rand, x coordinates of the sample
+	// zeta_2 is the second rand, y coordinates of the sample.
+	v.z = 2 * sample.x - 1;
+
+	float r = sqrt(1 - pow(v.z, 2));
+	float phi = 2 * M_PI * sample.y;
+
+	v.x = r * cos(phi);
+	v.y = r * sin(phi);
+
     return v;
 }
 
 inline float squareToUniformSpherePdf() {
     float pdf = 0.f;
     // TODO(A3): Implement this
+	// pdf * surface area = 1.
+	// area = 4 * pi * r^2. 
+	// uniform sphere, so r = 1
+	float r = 1.f;
+	pdf = 1 / (4 * M_PI * pow(r, 2));
+
     return pdf;
 }
 
 inline v3f squareToUniformHemisphere(const p2f& sample) {
     v3f v(0.f);
     // TODO(A3): Implement this
+	// Hemisphere is just a half of the sphere. 
+	// hemisphere is aligned with the positive z axis, so simply take the inverse if z is negative. 
+	v.z = 2 * sample.x - 1;
+	if (v.z < 0) {
+		v.z = -v.z;
+	}
+
+	float r = sqrt(1 - pow(v.z, 2));
+	float phi = 2 * M_PI * sample.y;
+
+	v.x = r * cos(phi);
+	v.y = r * sin(phi);
+
     return v;
 }
 
 inline float squareToUniformHemispherePdf(const v3f& v) {
     float pdf = 0.f;
     // TODO(A3): Implement this
+	// pdf * surface area = 1.
+	// surface area = 2 * pi * r^2. 
+	// uniform sphere, so r = 1
+	float r = 1.f;
+	pdf = 1 / (2 * M_PI * pow(r, 2));
+
     return pdf;
 }
 
 inline v2f squareToUniformDiskConcentric(const p2f& sample) {
     v2f v(0.f);
     // TODO(A3): Implement this
+	// Using Nusselt Analog. 
+	// PBRT 13.6.2
+	float r, phi;
+
+	r = sample.x;
+	phi = 2 * M_PI * sample.y;
+
+	v.x = cos(phi) * sqrt(r);
+	v.y = sin(phi) * sqrt(r);
+
     return v;
 }
 
 inline v3f squareToCosineHemisphere(const p2f& sample) {
     v3f v(0.f);
     // TODO(A3): Implement this
+	// Warp to the uniform disk
+	v2f p = squareToUniformDiskConcentric(sample);
+	v.x = p.x;
+	v.y = p.y;
+	v.z = sqrt(1 - pow(p.x, 2) - pow(p.y, 2));
+
     return v;
 }
 
 inline float squareToCosineHemispherePdf(const v3f& v) {
     float pdf = 0.f;
     // TODO(A3): Implement this
+	// PBRT: Returns a weight of cos(theta) / pi. 
+	// cos(theta) is the value of v.z
+	pdf = v.z / M_PI;
+
     return pdf;
 }
 
 inline v3f squareToPhongLobe(const p2f& sample, float exponent) {
     v3f v(0.f);
     // TODO(A3): Implement this
+	// Formula taken from: 
+	// http://www.cim.mcgill.ca/~derek/ecse689_a3.html?fbclid=IwAR1Wf5g0tY7ElS8COAVg7-QDorbvBCg9PIy3ftH3P3l_SqsiLNyPvVxP_k0
+	float phi, theta;
+
+	phi = 2 * M_PI * sample.y;
+	theta = acos(pow(sample.x, 1 / (exponent + 1)));
+
+	v.x = sin(theta) * cos(phi);
+	v.y = sin(theta) * cos(phi);
+	v.z = cos(theta);
+
     return v;
 }
 
 inline float squareToPhongLobePdf(const v3f& v, float exponent) {
     float pdf = 0.f;
     // TODO(A3): Implement this
+	float theta = acos(v.z / sqrt(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2)));
+	pdf = (exponent + 2) * pow(cos(theta), exponent) / (2 * M_PI);
+
     return pdf;
 }
 

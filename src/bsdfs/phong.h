@@ -62,7 +62,7 @@ struct PhongBSDF : BSDF {
         v3f val(0.f);
 
         // TODO(A2): Implement this
-		// 1. Test for front-facing incoming and outgoing rays;
+        // 1. Test for front-facing incoming and outgoing rays;
 		// 2. Evaluate the Phong BRDF in Equation (1);
 		// 3. Return this value multiplied by the cosine foreshortening factor.
 

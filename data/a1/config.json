@@ -1,8 +1,8 @@
 {
-  "firstlast": "Wenjie Wei",
-  "id": 260685967,
+  "firstlast": "John Doe",
+  "id": 123456789,
   "assignment": 1,
-  "course": 546,
+  "course": 446,
   "renders": [
     {
       "scene": "Sphere (offline)",

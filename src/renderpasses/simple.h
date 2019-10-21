@@ -86,7 +86,7 @@ struct SimplePass : RenderPass {
             GLuint camPosUniform = GLuint(glGetUniformLocation(obj.shaderID, "camPos"));
             glUniform3f(camPosUniform, camera.camera_position.x, camera.camera_position.y, camera.camera_position.z);
 
-			// Pass light position & power via uniforms
+            // Pass light position & power via uniforms
             //   this->lightPos
             //   this->lightIntensity
             // TODO(A2): Implement this
@@ -104,7 +104,7 @@ struct SimplePass : RenderPass {
              * 2) Draw its triangles.
              * 3) Bind vertex array to 0.
              */
-
+            // TODO(A2): Implement this
 			// Pass light position & power via uniforms
 			// Definitions of the obj in renderpass.h
 			GLuint lightPos = GLuint(glGetUniformLocation(obj.shaderID, "lightPos"));

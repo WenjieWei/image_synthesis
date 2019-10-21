@@ -89,7 +89,6 @@ struct NormalPass : RenderPass {
              * 3) Bind vertex array to 0.
              */
             // TODO(A1): Implement this
-
 			// VBO: Vertex Buffer Object: store vertex attributes, e.g. position, normal vector, and color of each vertex. 
 			// VAO: Vertex Array Object: define memory layout of the attribute in VBO. One VBO is assigned to each VAO. 
 			// Binding: pass vertex attributes to vertex shader. -> accessible in the vertex shader

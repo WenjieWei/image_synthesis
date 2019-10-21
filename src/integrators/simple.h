@@ -50,7 +50,8 @@ struct SimpleIntegrator : Integrator {
 			Li = v3f(0.f, 0.f, 0.f);
 		}
 
-        return glm::abs(Li);
+
+        return Li;
     }
 };
 

@@ -34,7 +34,8 @@ struct NormalIntegrator : Integrator {
 			// Retrieve the normal at the hit point. 
 			color = glm::abs(interaction.frameNs.n);
 		}
-		return color;
+
+        return color;
     }
 };
 
