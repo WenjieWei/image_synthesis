@@ -48,11 +48,12 @@ struct AOIntegrator : Integrator {
 			// Determine which warping function to use. 
 			ESamplingType m_samping_type;
 			//i.wi = Warp::squareToUniformSphere(sample);
-			//i.wi = Warp::squareToUniformHemisphere(sample);
-			i.wi = Warp::squareToCosineHemisphere(sample);
+			i.wi = Warp::squareToUniformHemisphere(sample);
+			//i.wi = Warp::squareToCosineHemisphere(sample);
 			
 			// Construct the shadow ray
 			// First retrieve the bounding sphere and its radius.
+
 			// Use a half of this value as the max traverse distance of the shadow ray.
 			BSphere BSphere = scene.aabb.getBSphere();
 			float maxShadowRayLength = BSphere.radius / 2;
@@ -76,8 +77,8 @@ struct AOIntegrator : Integrator {
 			}
 		}
 		//float pdf = Warp::squareToUniformSpherePdf();
-		//float pdf = Warp::squareToUniformHemispherePdf(Li);
-		float pdf = Warp::squareToCosineHemispherePdf(i.wi);
+		float pdf = Warp::squareToUniformHemispherePdf(Li);
+		//float pdf = Warp::squareToCosineHemispherePdf(i.wi);
 
         return Li / pdf;
     }

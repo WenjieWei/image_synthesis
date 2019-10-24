@@ -220,24 +220,26 @@ inline v3f squareToPhongLobe(const p2f& sample, float exponent) {
     v3f v(0.f);
     // TODO(A3): Implement this
 	// Formula taken from: 
+	// p93 of 04-Direct-illumination and
 	// http://www.cim.mcgill.ca/~derek/ecse689_a3.html?fbclid=IwAR1Wf5g0tY7ElS8COAVg7-QDorbvBCg9PIy3ftH3P3l_SqsiLNyPvVxP_k0
+	
 	float phi, theta;
 
-	phi = 2 * M_PI * sample.y;
-	theta = acos(pow(sample.x, 1 / (exponent + 1)));
+	phi = 2.f * M_PI * sample.y;
+	theta = acos(pow(1 - sample.x, 1.f / (exponent + 2.f)));
 
 	v.x = sin(theta) * cos(phi);
-	v.y = sin(theta) * cos(phi);
+	v.y = sin(theta) * sin(phi);
 	v.z = cos(theta);
-
+	
     return v;
 }
 
 inline float squareToPhongLobePdf(const v3f& v, float exponent) {
     float pdf = 0.f;
     // TODO(A3): Implement this
-	float theta = acos(v.z / sqrt(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2)));
-	pdf = (exponent + 2) * pow(cos(theta), exponent) / (2 * M_PI);
+	// cos(theta) is the value of v.z
+	pdf = (exponent + 2) * pow(v.z, exponent) / (2 * M_PI);
 
     return pdf;
 }

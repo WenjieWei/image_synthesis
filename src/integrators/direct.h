@@ -32,6 +32,10 @@ struct DirectIntegrator : Integrator {
                                         v3f& wiW,
                                         float& pdf) const {
         // TODO(A3): Implement this
+		// Items to compute: 
+		//	- wiW, the incident ray in world space
+		//	- pdf, the pdf of the sample
+		v3f sampledRay = Warp::squareToCosineHemisphere(sample);
     }
 
     void sampleSphereByArea(const p2f& sample,
