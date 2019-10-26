@@ -32,10 +32,8 @@ struct DirectIntegrator : Integrator {
                                         v3f& wiW,
                                         float& pdf) const {
         // TODO(A3): Implement this
-		// Items to compute: 
-		//	- wiW, the incident ray in world space
-		//	- pdf, the pdf of the sample
-		v3f sampledRay = Warp::squareToCosineHemisphere(sample);
+		wiW = Warp::squareToCosineHemisphere(sample);
+		pdf = Warp::squareToCosineHemispherePdf(wiW);
     }
 
     void sampleSphereByArea(const p2f& sample,
@@ -67,9 +65,51 @@ struct DirectIntegrator : Integrator {
     }
 
     v3f renderCosineHemisphere(const Ray& ray, Sampler& sampler) const {
-        v3f Lr(0.f);
-
+		v3f Lr(0.f);		
+		
         // TODO(A3): Implement this
+		SurfaceInteraction i;
+		bool hit = scene.bvh->intersect(ray, i);
+		if (hit) {
+			// If there is an interaction
+			// Check if the intersection point is an emitter point. 
+			// getEmission(i) should be nonzero if it is on an emitter. 
+			if (getEmission(i) != v3f(0.f)) {
+				// intersection point is on emitter. 
+				// render the emitter.
+				
+				size_t emId = getEmitterIDByShapeID(i.shapeID);
+				Emitter em = getEmitterByID(emId);
+				Lr = em.getRadiance();
+			}
+			else {
+				// Perform MC Estimation
+				for (int j = 0; j < m_bsdfSamples; j++) {
+					// Sampling function requires the following variables:
+					// sample, n, pShading, emitterCenter, emitterRadius, wiW, pdf&. 
+					// Retrieve emitter parameters
+					float emPdf;
+					size_t id = selectEmitter(sampler.next(), emPdf);
+					const Emitter& em = getEmitterByID(id);
+					v3f emCenter = scene.getShapeCenter(em.shapeID);
+					float emRadius = scene.getShapeRadius(em.shapeID);
+					float pdf;
+
+					// Call the sampling function to set wiW and pdf. 
+					sampleSphereByCosineHemisphere(sampler.next2D(), i.frameNs.n,
+						i.p, emCenter, emRadius, i.wi, pdf);
+
+					Ray shadowRay(i.p, i.frameNs.toWorld(glm::normalize(i.wi)));
+					SurfaceInteraction shadowInteraction;
+
+					if (scene.bvh->intersect(shadowRay, shadowInteraction)) {
+						Lr += getBSDF(i)->eval(i) * getEmission(shadowInteraction) / pdf;
+					}
+				}
+
+				Lr = Lr / m_bsdfSamples;
+			}
+		}
 
         return Lr;
     }
@@ -78,7 +118,26 @@ struct DirectIntegrator : Integrator {
         v3f Lr(0.f);
 
         // TODO(A3): Implement this
+		SurfaceInteraction i;
+		bool hit = scene.bvh->intersect(ray, i);
+		if (hit) {
+			// If there is an interaction
+			// Check if the intersection point is an emitter point. 
+			// getEmission(i) should be nonzero if it is on an emitter. 
+			if (getEmission(i) != v3f(0.f)) {
+				// intersection point is on emitter. 
+				// render the emitter.
 
+				size_t emId = getEmitterIDByShapeID(i.shapeID);
+				Emitter em = getEmitterByID(emId);
+				Lr = em.getRadiance();
+			}
+			else {
+				for (int j = 0; j < m_bsdfSamples; j++) {
+
+				}
+			}
+		}
         return Lr;
     }
 

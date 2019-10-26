@@ -106,6 +106,7 @@ struct PhongBSDF : BSDF {
         float pdf = 0.f;
 
         // TODO(A3): Implement this
+		pdf = Warp::squareToPhongLobePdf(i.wi, exponent->eval(worldData, i));
 
         return pdf;
     }
@@ -114,6 +115,26 @@ struct PhongBSDF : BSDF {
         v3f val(0.f);
 
         // TODO(A3): Implement this
+		// Create the view vector mirror reflection. 
+		// this wo_r should be the center of the cosine sampling lobe. 
+		v3f wo_r = reflect(i.wo);
+		// Rotate the sampled incident ray to match the correct lobe center. 
+		// Use Frame structure to perform the rotation. 
+		Frame lobeCenterFrame = Frame(glm::normalize(wo_r));
+
+		// Sample the incident rays around the center of the lobe. 
+		// Warp the incident ray
+		// Calculate the pdf here as this ray will be modified later. 
+		i.wi = Warp::squareToPhongLobe(sampler.next2D(), exponent->eval(worldData, i));
+		*pdf = PhongBSDF::pdf(i);
+
+		// Rotate the incident ray according to the frame center. 
+		i.wi = lobeCenterFrame.toWorld(i.wi);
+
+		// evaluate the BSDF
+		if (*pdf != 0) {
+			val = eval(i);
+		}
 
         return val;
     }

@@ -55,6 +55,7 @@ struct DiffuseBSDF : BSDF {
         float pdf = 0.f;
 
         // TODO(A3): Implement this
+		pdf = Warp::squareToCosineHemispherePdf(i.wi);
 
         return pdf;
     }
@@ -63,6 +64,12 @@ struct DiffuseBSDF : BSDF {
         v3f val(0.f);
 
         // TODO(A3): Implement this
+		i.wi = Warp::squareToCosineHemisphere(sampler.next2D());
+		*pdf = DiffuseBSDF::pdf(i);
+
+		if (*pdf != 0) {
+			val = eval(i) / *pdf;
+		}
 
         return val;
     }
