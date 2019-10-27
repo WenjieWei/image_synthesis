@@ -45,15 +45,15 @@ struct DirectIntegrator : Integrator {
                             v3f& wiW,
                             float& pdf) const {
         // TODO(A3): Implement this
-		// samples on the emitter is a vector with radius of the emitter radius.
-		v3f lightSample = Warp::squareToUniformSphere(sample) * emitterRadius;
-		// shift the samples according to the emitter center. 
-		pos = lightSample + emitterCenter;
-		// wiW = x -> y
+		// arguments:
+		//	- sample: 2D canonical sample point
+		//	- pShading: i.p
+		//	- pos: position of the sample in world coordinates
+		//	- ne: normal of emitter point
+		ne = Warp::squareToUniformSphere(sample);
+		pos = emitterCenter + emitterRadius * ne;
 		wiW = glm::normalize(pos - pShading);
-		ne = glm::normalize(lightSample);
-
-		pdf = INV_FOURPI / pow(emitterRadius, 2);
+		pdf = INV_FOURPI / (pow(emitterRadius, 2));
     }
 
     void sampleSphereBySolidAngle(const p2f& sample,
@@ -62,7 +62,16 @@ struct DirectIntegrator : Integrator {
                                   float emitterRadius,
                                   v3f& wiW,
                                   float& pdf) const {
-        // TODO(A3): Implement this
+		// TODO(A3): Implement this
+		
+		float dist = glm::distance(pShading, emitterCenter);
+		float theta = acos(dist / sqrt(pow(dist, 2) + pow(emitterRadius, 2)));
+
+		// Construct a frame about x->y
+		Frame coneFrame = Frame(glm::normalize(emitterCenter - pShading));
+
+		wiW = coneFrame.toWorld(Warp::squareToUniformCone(sample, cos(theta)));
+		pdf = Warp::squareToUniformConePdf(cos(theta));
     }
 
     v3f renderArea(const Ray& ray, Sampler& sampler) const {
@@ -71,41 +80,53 @@ struct DirectIntegrator : Integrator {
 
 		SurfaceInteraction i;
 		bool hit = scene.bvh->intersect(ray, i);
-
 		if (hit) {
-			// Render the light emitter source
+			// Check if intersection is an emitter.
 			if (getEmission(i) != v3f(0.f)) {
-				// intersection point is on emitter. 
-				// render the emitter.
+				// Render the emitter if nonzero
 				size_t emId = getEmitterIDByShapeID(i.shapeID);
 				Emitter em = getEmitterByID(emId);
 				Lr = em.getRadiance();
 			}
 			else {
-				for (int j = 0; j < m_bsdfSamples; j++) {
-					// Sampling function requires the following variables:
-					// sample, pShading, emitterCenter, emitterRadius, pos, ne, wiW, pdf 
-					// Retrieve emitter parameters
-					float emPdf;
+				// The interaction point is not on the emitter. 
+				// Do BSDF shading according to the by area method. 
+				for (int j = 0; j < m_emitterSamples; j++) {
+					// sampleArea function signature:
+					// sample, pShading, emitterCenter, emitterRadius, pos, ne, wiW, pdf
+					float emPdf, pdf_A;
+					v3f pos, ne;
+
 					size_t id = selectEmitter(sampler.next(), emPdf);
 					const Emitter& em = getEmitterByID(id);
 					v3f emCenter = scene.getShapeCenter(em.shapeID);
 					float emRadius = scene.getShapeRadius(em.shapeID);
-					float pdf;
 
-					v3f pos(0.f);
-					v3f ne(0.f);
+					sampleSphereByArea(sampler.next2D(), i.p, emCenter, emRadius, pos, ne, i.wi, pdf_A);
 
-					sampleSphereByArea(sampler.next2D(), i.p, emCenter, emRadius, pos, ne, i.wi, pdf);
-
-					// Check direct illumination visibility
+					// After the sampling, all vectors should be in world coordinates. 
+					// wiW is already normalized. 
+					// Trace the shadow ray to perform direct illumination MC. 
 					SurfaceInteraction shadowInteraction;
+					Ray shadowRay(i.p, i.wi);
+					if (scene.bvh->intersect(shadowRay, shadowInteraction)) {
+						// If (x->y) dot ne is negative
+						// That means the sampled point is behind the sphere, should be discarded. 
+						if (glm::dot((emCenter - i.p), ne) >= 0) {
+							// do the integration
+							float pdf_Omega = pdf_A * glm::distance2(pos, i.p) / glm::dot(i.wi, ne);
 
-					//if(scene.bvh->intersect())
+							// Convert i.wi to local coord to do the bsdf evaluation. 
+							i.wi = i.frameNs.toLocal(i.wi);
+							Lr += getBSDF(i)->eval(i) * getEmission(shadowInteraction) / (pdf_Omega * emPdf);
+						}
+					}
 				}
+
+				Lr /= m_emitterSamples;
 			}
 		}
-		
+
 		return Lr;
     }
 
@@ -200,11 +221,45 @@ struct DirectIntegrator : Integrator {
     }
 
     v3f renderSolidAngle(const Ray& ray, Sampler& sampler) const {
-        v3f Lr(0.f);
+		v3f Lr(0.f);
+		
+		// TODO(A3): Implement this
 
-        // TODO(A3): Implement this
+		SurfaceInteraction i;
+		bool hit = scene.bvh->intersect(ray, i);
+		if (hit) {
+			if (getEmission(i) != v3f(0.f)) {
+				// Interaction point is an emitter. 
+				size_t emId = getEmitterIDByShapeID(i.shapeID);
+				Emitter em = getEmitterByID(emId);
+				Lr = em.getRadiance();
+			}
+			else {
+				for (int j = 0; j < m_emitterSamples; j++) {
+					// Sampling function requires the following variables:
+					// sample, pShading, emitterCenter, emitterRadius, wiW, pdf
+					float emPdf;
+					size_t id = selectEmitter(sampler.next(), emPdf);
+					const Emitter& em = getEmitterByID(id);
+					v3f emCenter = scene.getShapeCenter(em.shapeID);
+					float emRadius = scene.getShapeRadius(em.shapeID);
+					float pdf;
 
-        return Lr;
+					sampleSphereBySolidAngle(sampler.next2D(), i.p, emCenter, emRadius, i.wi, pdf);
+
+					Ray shadowRay(i.p, i.wi);
+					SurfaceInteraction shadowInteraction;
+					if (scene.bvh->intersect(shadowRay, shadowInteraction)) {
+						i.wi = i.frameNs.toLocal(i.wi);
+						Lr += getBSDF(i)->eval(i) * getEmission(shadowInteraction) / (pdf * emPdf);
+					}
+				}
+				
+				Lr /= m_emitterSamples;
+			}
+		}
+
+		return Lr;
     }
 
     v3f renderMIS(const Ray& ray, Sampler& sampler) const {

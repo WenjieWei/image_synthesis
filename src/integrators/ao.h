@@ -41,17 +41,22 @@ struct AOIntegrator : Integrator {
 		// 1. Intersect the eye rays with the scene geometry
 		SurfaceInteraction i;
 		bool hit = scene.bvh->intersect(ray, i);
+		float pdf = 1.f;
 		// If there is an intersection
 		if (hit) {
 			// Compute the MC AO estimate at the shading point. 
 			v2f sample = sampler.next2D();
 			// Determine which warping function to use. 
-			ESamplingType m_samping_type;
-
-			// TODO: Figure out how to dynamically use sampling techniques. 
-			//i.wi = Warp::squareToUniformSphere(sample);
-			i.wi = Warp::squareToUniformHemisphere(sample);
-			//i.wi = Warp::squareToCosineHemisphere(sample);
+			
+			if (m_samplingStrategy == ESamplingType::ESpherical) {
+				i.wi = Warp::squareToUniformSphere(sample);
+			}
+			else if (m_samplingStrategy == ESamplingType::EHemispherical) {
+				i.wi = Warp::squareToUniformHemisphere(sample);
+			}
+			else {
+				i.wi = Warp::squareToCosineHemisphere(sample);
+			}
 			
 			// Construct the shadow ray
 			// First retrieve the bounding sphere and its radius.
@@ -78,9 +83,16 @@ struct AOIntegrator : Integrator {
 				}
 			}
 		}
-		//float pdf = Warp::squareToUniformSpherePdf();
-		float pdf = Warp::squareToUniformHemispherePdf(Li);
-		//float pdf = Warp::squareToCosineHemispherePdf(i.wi);
+
+		if (m_samplingStrategy == ESamplingType::ESpherical) {
+			pdf = Warp::squareToUniformSpherePdf();
+		}
+		else if (m_samplingStrategy == ESamplingType::EHemispherical) {
+			pdf = Warp::squareToUniformHemispherePdf(Li);
+		}
+		else {
+			pdf = Warp::squareToCosineHemispherePdf(i.wi);
+		}
 
         return Li / pdf;
     }

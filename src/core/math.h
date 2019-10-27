@@ -254,12 +254,22 @@ inline v2f squareToUniformTriangle(const p2f& sample) {
 inline v3f squareToUniformCone(const p2f& sample, float cosThetaMax) {
     v3f v(0.f);
     // TODO(A3): Implement this
+	// Referenced from: https://schuttejoe.github.io/post/arealightsampling/
+	float theta = acos(1 - sample.x + sample.x * cosThetaMax);
+	float phi = 2 * M_PI * sample.y;
+
+	v.x = sin(theta) * cos(phi);
+	v.y = sin(theta) * sin(phi);
+	v.z = cos(theta);
+
     return v;
 }
 
 inline float squareToUniformConePdf(float cosThetaMax) {
     float pdf = 0.f;
     // TODO(A3): Implement this
+
+	pdf = INV_TWOPI / (1 - cosThetaMax);
     return pdf;
 }
 
