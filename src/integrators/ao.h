@@ -47,6 +47,8 @@ struct AOIntegrator : Integrator {
 			v2f sample = sampler.next2D();
 			// Determine which warping function to use. 
 			ESamplingType m_samping_type;
+
+			// TODO: Figure out how to dynamically use sampling techniques. 
 			//i.wi = Warp::squareToUniformSphere(sample);
 			i.wi = Warp::squareToUniformHemisphere(sample);
 			//i.wi = Warp::squareToCosineHemisphere(sample);

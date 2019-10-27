@@ -45,6 +45,15 @@ struct DirectIntegrator : Integrator {
                             v3f& wiW,
                             float& pdf) const {
         // TODO(A3): Implement this
+		// samples on the emitter is a vector with radius of the emitter radius.
+		v3f lightSample = Warp::squareToUniformSphere(sample) * emitterRadius;
+		// shift the samples according to the emitter center. 
+		pos = lightSample + emitterCenter;
+		// wiW = x -> y
+		wiW = glm::normalize(pos - pShading);
+		ne = glm::normalize(lightSample);
+
+		pdf = INV_FOURPI / pow(emitterRadius, 2);
     }
 
     void sampleSphereBySolidAngle(const p2f& sample,
@@ -57,11 +66,47 @@ struct DirectIntegrator : Integrator {
     }
 
     v3f renderArea(const Ray& ray, Sampler& sampler) const {
-        v3f Lr(0.f);
+		v3f Lr(0.f);
+		// TODO(A3): Implement this
 
-        // TODO(A3): Implement this
+		SurfaceInteraction i;
+		bool hit = scene.bvh->intersect(ray, i);
 
-        return Lr;
+		if (hit) {
+			// Render the light emitter source
+			if (getEmission(i) != v3f(0.f)) {
+				// intersection point is on emitter. 
+				// render the emitter.
+				size_t emId = getEmitterIDByShapeID(i.shapeID);
+				Emitter em = getEmitterByID(emId);
+				Lr = em.getRadiance();
+			}
+			else {
+				for (int j = 0; j < m_bsdfSamples; j++) {
+					// Sampling function requires the following variables:
+					// sample, pShading, emitterCenter, emitterRadius, pos, ne, wiW, pdf 
+					// Retrieve emitter parameters
+					float emPdf;
+					size_t id = selectEmitter(sampler.next(), emPdf);
+					const Emitter& em = getEmitterByID(id);
+					v3f emCenter = scene.getShapeCenter(em.shapeID);
+					float emRadius = scene.getShapeRadius(em.shapeID);
+					float pdf;
+
+					v3f pos(0.f);
+					v3f ne(0.f);
+
+					sampleSphereByArea(sampler.next2D(), i.p, emCenter, emRadius, pos, ne, i.wi, pdf);
+
+					// Check direct illumination visibility
+					SurfaceInteraction shadowInteraction;
+
+					//if(scene.bvh->intersect())
+				}
+			}
+		}
+		
+		return Lr;
     }
 
     v3f renderCosineHemisphere(const Ray& ray, Sampler& sampler) const {
@@ -134,8 +179,21 @@ struct DirectIntegrator : Integrator {
 			}
 			else {
 				for (int j = 0; j < m_bsdfSamples; j++) {
+					// test the diffuse BSDF. 
+					float pdf;
 
+					v3f val = getBSDF(i)->sample(i, sampler, &pdf);
+
+					Ray shadowRay(i.p, glm::normalize(i.frameNs.toWorld(i.wi)));
+					SurfaceInteraction shadowInteraction;
+
+					// If the shadow ray hits an emitter, integrate the BSDF. 
+					if (scene.bvh->intersect(shadowRay, shadowInteraction)) {
+						Lr += val * getEmission(shadowInteraction);
+					}
 				}
+
+				Lr /= m_bsdfSamples;
 			}
 		}
         return Lr;

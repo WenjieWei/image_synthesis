@@ -1,8 +1,8 @@
 /*
-    This file is part of TinyRender, an educative rendering system.
+	This file is part of TinyRender, an educative rendering system.
 
-    Designed for ECSE 446/546 Realistic/Advanced Image Synthesis.
-    Derek Nowrouzezahrai, McGill University.
+	Designed for ECSE 446/546 Realistic/Advanced Image Synthesis.
+	Derek Nowrouzezahrai, McGill University.
 */
 
 #pragma once
@@ -14,55 +14,55 @@ TR_NAMESPACE_BEGIN
 /**
  * Modified Phong reflectance model
  */
-struct PhongBSDF : BSDF {
+	struct PhongBSDF : BSDF {
 
-    std::unique_ptr<Texture < v3f>> specularReflectance;
-    std::unique_ptr<Texture < v3f>> diffuseReflectance;
-    std::unique_ptr<Texture < float>> exponent;
-    float specularSamplingWeight;
-    float scale;
+	std::unique_ptr<Texture < v3f>> specularReflectance;
+	std::unique_ptr<Texture < v3f>> diffuseReflectance;
+	std::unique_ptr<Texture < float>> exponent;
+	float specularSamplingWeight;
+	float scale;
 
-    PhongBSDF(const WorldData& scene, const Config& config, const size_t& matID) : BSDF(scene, config, matID) {
-        const tinyobj::material_t& mat = scene.materials[matID];
+	PhongBSDF(const WorldData& scene, const Config& config, const size_t& matID) : BSDF(scene, config, matID) {
+		const tinyobj::material_t& mat = scene.materials[matID];
 
-        if (mat.specular_texname.empty())
-            specularReflectance = std::unique_ptr<Texture<v3f>>(new ConstantTexture3f(glm::make_vec3(mat.specular)));
-        else
-            specularReflectance = std::unique_ptr<Texture<v3f>>(new BitmapTexture3f(config, mat.specular_texname));
+		if (mat.specular_texname.empty())
+			specularReflectance = std::unique_ptr<Texture<v3f>>(new ConstantTexture3f(glm::make_vec3(mat.specular)));
+		else
+			specularReflectance = std::unique_ptr<Texture<v3f>>(new BitmapTexture3f(config, mat.specular_texname));
 
-        if (mat.diffuse_texname.empty())
-            diffuseReflectance = std::unique_ptr<Texture<v3f>>(new ConstantTexture3f(glm::make_vec3(mat.diffuse)));
-        else
-            diffuseReflectance = std::unique_ptr<Texture<v3f>>(new BitmapTexture3f(config, mat.diffuse_texname));
+		if (mat.diffuse_texname.empty())
+			diffuseReflectance = std::unique_ptr<Texture<v3f>>(new ConstantTexture3f(glm::make_vec3(mat.diffuse)));
+		else
+			diffuseReflectance = std::unique_ptr<Texture<v3f>>(new BitmapTexture3f(config, mat.diffuse_texname));
 
-        exponent = std::unique_ptr<Texture<float>>(new ConstantTexture1f(mat.shininess));
+		exponent = std::unique_ptr<Texture<float>>(new ConstantTexture1f(mat.shininess));
 
-        //get scale value to ensure energy conservation
-        v3f maxValue = specularReflectance->getMax() + diffuseReflectance->getMax();
-        float actualMax = max(max(maxValue.x, maxValue.y), maxValue.z);
-        scale = actualMax > 1.0f ? 0.99f * (1.0f / actualMax) : 1.0f;
+		//get scale value to ensure energy conservation
+		v3f maxValue = specularReflectance->getMax() + diffuseReflectance->getMax();
+		float actualMax = max(max(maxValue.x, maxValue.y), maxValue.z);
+		scale = actualMax > 1.0f ? 0.99f * (1.0f / actualMax) : 1.0f;
 
-        float dAvg = getLuminance(diffuseReflectance->getAverage() * scale);
-        float sAvg = getLuminance(specularReflectance->getAverage() * scale);
-        specularSamplingWeight = sAvg / (dAvg + sAvg);
+		float dAvg = getLuminance(diffuseReflectance->getAverage() * scale);
+		float sAvg = getLuminance(specularReflectance->getAverage() * scale);
+		specularSamplingWeight = sAvg / (dAvg + sAvg);
 
-        components.push_back(EGlossyReflection);
-        components.push_back(EDiffuseReflection);
+		components.push_back(EGlossyReflection);
+		components.push_back(EDiffuseReflection);
 
-        combinedType = 0;
-        for (unsigned int component : components)
-            combinedType |= component;
-    }
+		combinedType = 0;
+		for (unsigned int component : components)
+			combinedType |= component;
+	}
 
-    inline v3f reflect(const v3f& d) const {
-        return v3f(-d.x, -d.y, d.z);
-    }
+	inline v3f reflect(const v3f& d) const {
+		return v3f(-d.x, -d.y, d.z);
+	}
 
-    v3f eval(const SurfaceInteraction& i) const override {
-        v3f val(0.f);
+	v3f eval(const SurfaceInteraction& i) const override {
+		v3f val(0.f);
 
-        // TODO(A2): Implement this
-        // 1. Test for front-facing incoming and outgoing rays;
+		// TODO(A2): Implement this
+		// 1. Test for front-facing incoming and outgoing rays;
 		// 2. Evaluate the Phong BRDF in Equation (1);
 		// 3. Return this value multiplied by the cosine foreshortening factor.
 
@@ -99,47 +99,63 @@ struct PhongBSDF : BSDF {
 			val = v3f(0.f, 0.f, 0.f);
 		}
 
-        return val;
-    }
+		return val;
+	}
 
-    float pdf(const SurfaceInteraction& i) const override {
-        float pdf = 0.f;
+	float pdf(const SurfaceInteraction& i) const override {
+		float pdf = 0.f;
 
-        // TODO(A3): Implement this
+		// TODO(A3): Implement this
 		pdf = Warp::squareToPhongLobePdf(i.wi, exponent->eval(worldData, i));
 
-        return pdf;
-    }
+		return pdf;
+	}
 
-    v3f sample(SurfaceInteraction& i, Sampler& sampler, float* pdf) const override {
-        v3f val(0.f);
+	v3f sample(SurfaceInteraction& i, Sampler& sampler, float* pdf) const override {
+		v3f val(0.f);
 
-        // TODO(A3): Implement this
+		// TODO(A3): Implement this
 		// Create the view vector mirror reflection. 
 		// this wo_r should be the center of the cosine sampling lobe. 
 		v3f wo_r = reflect(i.wo);
 		// Rotate the sampled incident ray to match the correct lobe center. 
 		// Use Frame structure to perform the rotation. 
 		Frame lobeCenterFrame = Frame(glm::normalize(wo_r));
+		float pdf_s = 0.f;
+		float pdf_d = 0.f;
 
 		// Sample the incident rays around the center of the lobe. 
 		// Warp the incident ray
-		// Calculate the pdf here as this ray will be modified later. 
-		i.wi = Warp::squareToPhongLobe(sampler.next2D(), exponent->eval(worldData, i));
-		*pdf = PhongBSDF::pdf(i);
+		// Calculate the pdf here as this ray will be modified later. 		
+		if (sampler.next() < specularSamplingWeight) {
+			// Do Phong BSDF
+			i.wi = Warp::squareToPhongLobe(sampler.next2D(), exponent->eval(worldData, i));
+			pdf_s = this->pdf(i);
+			pdf_d = Warp::squareToCosineHemispherePdf(i.wi);
 
-		// Rotate the incident ray according to the frame center. 
-		i.wi = lobeCenterFrame.toWorld(i.wi);
+			i.wi = lobeCenterFrame.toWorld(i.wi);
+		}
+		else {
+			i.wi = Warp::squareToCosineHemisphere(sampler.next2D());
+			pdf_d = Warp::squareToCosineHemispherePdf(i.wi);
+
+			i.wi = glm::normalize(lobeCenterFrame.toLocal(i.wi));
+			pdf_s = this->pdf(i);
+
+			i.wi = glm::normalize(lobeCenterFrame.toWorld(i.wi));
+		}
+
+		*pdf = specularSamplingWeight * pdf_s + (1 - specularSamplingWeight) * pdf_d;
 
 		// evaluate the BSDF
 		if (*pdf != 0) {
-			val = eval(i);
+			val = eval(i) / *pdf;
 		}
 
-        return val;
-    }
+		return val;
+	}
 
-    std::string toString() const override { return "Phong"; }
+	std::string toString() const override { return "Phong"; }
 };
 
 TR_NAMESPACE_END
