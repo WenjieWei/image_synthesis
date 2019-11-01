@@ -14,7 +14,7 @@ out vec3 color;
 
 void main()
 {
-    // TODO(A1): Implement this
+    // TODO(A1): Implement this	
 	// Make the color as the output, and assign the value of vNormal to it. 
 	color = vNormal;
 }

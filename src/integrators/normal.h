@@ -19,12 +19,12 @@ struct NormalIntegrator : Integrator {
     explicit NormalIntegrator(const Scene& scene) : Integrator(scene) { }
 
     v3f render(const Ray& ray, Sampler& sampler) const override {
+        v3f color(0.f, 1.f, 0.f); // Default rgb value
+
         // HINT: Use the scene.bvh->intersect method. It's definition is in src/accel.h
         // TODO(A1): Implement this
-		
 		SurfaceInteraction interaction;
 		bool hit = scene.bvh->intersect(ray, interaction);
-		v3f color;
 
 		if (!hit) {
 			// No hit, color is black.

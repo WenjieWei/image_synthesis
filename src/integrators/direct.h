@@ -62,8 +62,7 @@ struct DirectIntegrator : Integrator {
                                   float emitterRadius,
                                   v3f& wiW,
                                   float& pdf) const {
-		// TODO(A3): Implement this
-		
+        // TODO(A3): Implement this
 		float dist = glm::distance(pShading, emitterCenter);
 		float theta = acos(dist / sqrt(pow(dist, 2) + pow(emitterRadius, 2)));
 
@@ -75,9 +74,9 @@ struct DirectIntegrator : Integrator {
     }
 
     v3f renderArea(const Ray& ray, Sampler& sampler) const {
-		v3f Lr(0.f);
-		// TODO(A3): Implement this
+        v3f Lr(0.f);
 
+        // TODO(A3): Implement this
 		SurfaceInteraction i;
 		bool hit = scene.bvh->intersect(ray, i);
 		if (hit) {
@@ -127,12 +126,12 @@ struct DirectIntegrator : Integrator {
 			}
 		}
 
-		return Lr;
+        return Lr;
     }
 
     v3f renderCosineHemisphere(const Ray& ray, Sampler& sampler) const {
-		v3f Lr(0.f);		
-		
+        v3f Lr(0.f);
+
         // TODO(A3): Implement this
 		SurfaceInteraction i;
 		bool hit = scene.bvh->intersect(ray, i);
@@ -143,7 +142,7 @@ struct DirectIntegrator : Integrator {
 			if (getEmission(i) != v3f(0.f)) {
 				// intersection point is on emitter. 
 				// render the emitter.
-				
+
 				size_t emId = getEmitterIDByShapeID(i.shapeID);
 				Emitter em = getEmitterByID(emId);
 				Lr = em.getRadiance();
@@ -217,14 +216,14 @@ struct DirectIntegrator : Integrator {
 				Lr /= m_bsdfSamples;
 			}
 		}
+
         return Lr;
     }
 
     v3f renderSolidAngle(const Ray& ray, Sampler& sampler) const {
-		v3f Lr(0.f);
-		
-		// TODO(A3): Implement this
+        v3f Lr(0.f);
 
+        // TODO(A3): Implement this
 		SurfaceInteraction i;
 		bool hit = scene.bvh->intersect(ray, i);
 		if (hit) {
@@ -254,12 +253,12 @@ struct DirectIntegrator : Integrator {
 						Lr += getBSDF(i)->eval(i) * getEmission(shadowInteraction) / (pdf * emPdf);
 					}
 				}
-				
+
 				Lr /= m_emitterSamples;
 			}
 		}
 
-		return Lr;
+        return Lr;
     }
 
     v3f renderMIS(const Ray& ray, Sampler& sampler) const {

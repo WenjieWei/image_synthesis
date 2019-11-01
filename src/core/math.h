@@ -30,6 +30,13 @@ inline T clamp(T v, T min, T max) {
 }
 
 /**
+ * Clamp vector below
+ */
+inline v3f clampBelow(const v3f& v, const float c) {
+    return v3f(std::max(c, v.x), std::max(c, v.y), std::max(c, v.z));
+}
+
+/**
  * Checks if vector is zero.
  */
 inline bool isZero(const v3f v) {
@@ -222,7 +229,7 @@ inline v3f squareToPhongLobe(const p2f& sample, float exponent) {
 	// Formula taken from: 
 	// p93 of 04-Direct-illumination and
 	// http://www.cim.mcgill.ca/~derek/ecse689_a3.html?fbclid=IwAR1Wf5g0tY7ElS8COAVg7-QDorbvBCg9PIy3ftH3P3l_SqsiLNyPvVxP_k0
-	
+
 	float phi, theta;
 
 	phi = 2.f * M_PI * sample.y;
@@ -231,7 +238,7 @@ inline v3f squareToPhongLobe(const p2f& sample, float exponent) {
 	v.x = sin(theta) * cos(phi);
 	v.y = sin(theta) * sin(phi);
 	v.z = cos(theta);
-	
+
     return v;
 }
 
@@ -268,8 +275,8 @@ inline v3f squareToUniformCone(const p2f& sample, float cosThetaMax) {
 inline float squareToUniformConePdf(float cosThetaMax) {
     float pdf = 0.f;
     // TODO(A3): Implement this
-
 	pdf = INV_TWOPI / (1 - cosThetaMax);
+
     return pdf;
 }
 

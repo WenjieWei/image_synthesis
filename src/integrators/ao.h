@@ -47,7 +47,7 @@ struct AOIntegrator : Integrator {
 			// Compute the MC AO estimate at the shading point. 
 			v2f sample = sampler.next2D();
 			// Determine which warping function to use. 
-			
+
 			if (m_samplingStrategy == ESamplingType::ESpherical) {
 				i.wi = Warp::squareToUniformSphere(sample);
 			}
@@ -57,7 +57,7 @@ struct AOIntegrator : Integrator {
 			else {
 				i.wi = Warp::squareToCosineHemisphere(sample);
 			}
-			
+
 			// Construct the shadow ray
 			// First retrieve the bounding sphere and its radius.
 
@@ -66,7 +66,7 @@ struct AOIntegrator : Integrator {
 			float maxShadowRayLength = BSphere.radius / 2;
 			Ray shadowRay(i.p, glm::normalize(i.frameNs.toWorld(i.wi)));
 			shadowRay.max_t = maxShadowRayLength;
-			
+
 			bool visible = !scene.bvh->intersect(shadowRay, i);
 			// Calculate the ambient occlusion
 			// refer to page ~84 on direct illumination I & II

@@ -25,7 +25,7 @@ struct SimpleIntegrator : Integrator {
 
 		if (hit) {
 			// Retrieve the light position and intensity. 
-			
+
 			v3f pointLight_position = scene.getFirstLightPosition();
 			v3f pointLight_intensity = scene.getFirstLightIntensity();
 
@@ -45,11 +45,10 @@ struct SimpleIntegrator : Integrator {
 			if (visible) {
 				Li = (pointLight_intensity / (pow(r, 2))) * material;
 			}
-		} 
+		}
 		else {
 			Li = v3f(0.f, 0.f, 0.f);
 		}
-
 
         return Li;
     }

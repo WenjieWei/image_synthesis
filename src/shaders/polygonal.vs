@@ -8,6 +8,7 @@
 #version 330 core
 
 
+#pragma once
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -17,16 +18,13 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 
 out vec3 vNormal;
+out vec3 vPos;
+
 
 void main()
-{
-    // TODO(A1): Implement this
-	
-	// High level: 
-	// 1. Take Triangles,
-	// 2. Figure out which pixels they cover. 
-	// 3. Perform computations over the pixels. 
-	
-	gl_Position = projection * view * model * vec4(position, 1.f); 
-	vNormal = abs(normal);
+{   
+    vNormal = (normalMat * vec4(normal, 0.0)).xyz;
+	vPos = (model * vec4(position, 1.f)).xyz;
+    gl_Position = projection * view * model * vec4(position, 1.0);   
 }
+

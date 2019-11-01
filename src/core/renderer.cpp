@@ -36,6 +36,8 @@
 #include <integrators/ro.h>
 
 #include <integrators/direct.h>
+#include <integrators/polygonal.h>
+#include <renderpasses/polygonal.h>
 
 #include <integrators/path.h>
 #include <renderpasses/gi.h>
@@ -65,6 +67,11 @@ bool Renderer::init(const bool isRealTime, bool nogui) {
         /*else if (scene.config.renderpass == ESSAORenderPass) {
             renderpass = std::unique_ptr<SSAOPass>(new SSAOPass(scene));
         }*/
+
+		else if (scene.config.renderpass == EPolygonalRenderPass) {
+			renderpass = std::unique_ptr<PolygonalPass>(new PolygonalPass(scene));
+		}
+
         else if (scene.config.renderpass == EGIRenderPass) {
             renderpass = std::unique_ptr<GIPass>(new GIPass(scene));
         }
@@ -91,6 +98,9 @@ bool Renderer::init(const bool isRealTime, bool nogui) {
         else if (scene.config.integrator == EDirectIntegrator) {
             integrator = std::unique_ptr<DirectIntegrator>(new DirectIntegrator(scene));
         }
+        else if (scene.config.integrator == EPolygonalIntegrator) {
+            integrator = std::unique_ptr<PolygonalIntegrator>(new PolygonalIntegrator(scene));
+        }
         else if (scene.config.integrator == EPathTracerIntegrator) {
             integrator = std::unique_ptr<PathTracerIntegrator>(new PathTracerIntegrator(scene));
         }
@@ -113,7 +123,8 @@ void Renderer::render() {
          * 3) Output the rendered image into the GUI window using SDL_GL_SwapWindow(renderpass->window).
          */
         // TODO(A1): Implement this
-		 // Start an infinite loop first. 
+		// TODO(A1): Implement this
+		// Start an infinite loop first. 
 		while (1) {
 			// Detect the quit event. 
 			SDL_Event event;
@@ -130,18 +141,18 @@ void Renderer::render() {
 				}
 			}
 		}
-	}
-	else {
-		/**
-		 * 1) Calculate the camera perspective, the camera-to-world transformation matrix and the aspect ratio.
-		 * 2) Clear integral RGB buffer.
-		 * 3) Loop over all pixels on the image plane.
+    } else {
+        /**
+         * 1) Calculate the camera perspective, the camera-to-world transformation matrix and the aspect ratio.
+         * 2) Clear integral RGB buffer.
+         * 3) Loop over all pixels on the image plane.
 				- For the outermost loop, you should use `ThreadPool::ParallelFor(...)` for faster execution *in release mode only*.
 				  You can use the `#ifdef NDEBUG` macro to detect when the code is running in release mode.
-		 * 4) Generate `spp` number of rays randomly through each pixel.
-		 * 5) Splat their contribution onto the image plane.
+         * 4) Generate `spp` number of rays randomly through each pixel.
+         * 5) Splat their contribution onto the image plane.
 		 * HINT: All configuration options and camera properties can be found in object `scene.config`.
-		 */
+         */
+        // TODO(A1): Implement this
 		 // fov is the field of view in degree. 
 		float fov = scene.config.camera.fov;
 		// Vector contains the coordinate of the central pixel that camera is looking at. 
@@ -173,7 +184,7 @@ void Renderer::render() {
 		// Loop through all the pixels on the screen. 
 		// Use the ThreadPool::ParallelFor(...) to improve performance. 
 #ifdef NDEBUG // Running in release mode - use threads
-	ThreadPool::ParallelFor(0, imageHeight, [&] (int y) {
+		ThreadPool::ParallelFor(0, imageHeight, [&](int y) {
 #else // Running in debug mode - Don't use threads.
 		ThreadPool::SequentialFor(0, imageHeight, [&](int y) {
 #endif
