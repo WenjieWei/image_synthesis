@@ -266,6 +266,38 @@ struct DirectIntegrator : Integrator {
         v3f Lr(0.f);
 
         // TODO(A4): Implement this
+		SurfaceInteraction i;
+		bool hit = scene.bvh->intersect(ray, i);
+		if (hit) {
+			if (getEmission(i) != v3f(0.f)) {
+				// Render the emitter if the emission value is not zero. 
+				size_t emId = getEmitterIDByShapeID(i.shapeID);
+				Emitter em = getEmitterByID(emId);
+				Lr = em.getRadiance();
+			}
+			else {
+				// Intersection point is not on the emitter.
+				// Perform MIS sampling. 
+				for (int j = 0; j < m_emitterSamples; j++) {
+					// Sampling function requires the following variables:
+					// sample, pShading, emitterCenter, emitterRadius, wiW, pdf
+					float emPdf;
+					size_t id = selectEmitter(sampler.next(), emPdf);
+					const Emitter& em = getEmitterByID(id);
+					v3f emCenter = scene.getShapeCenter(em.shapeID);
+					float emRadius = scene.getShapeRadius(em.shapeID);
+					float pdf;
+
+					sampleSphereBySolidAngle(sampler.next2D(), i.p, emCenter, emRadius, i.wi, pdf);
+
+					Ray shadowRay(i.p, i.wi);
+					SurfaceInteraction shadowInteraction;
+					if (scene.bvh->intersect(shadowRay, shadowInteraction)) {
+
+					}
+				}
+			}
+		}
 
         return Lr;
     }
