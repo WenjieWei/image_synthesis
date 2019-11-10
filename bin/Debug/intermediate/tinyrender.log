@@ -1,6 +1,16 @@
 ﻿  renderer.cpp
-  renderpass.cpp
-  Generating Code...
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\direct.h(93,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\direct.h(152,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\direct.h(201,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\direct.h(237,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\direct.h(286,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\direct.h(312,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\polygonal.h(128,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\polygonal.h(135,24): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\polygonal.h(244,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\polygonal.h(251,24): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\polygonal.h(276,23): warning C4018:  '<': signed/unsigned mismatch
+E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\src\integrators\polygonal.h(304,23): warning C4018:  '<': signed/unsigned mismatch
   tinyrender.vcxproj -> E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\bin\Debug\tinyrender.exe
   E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\externals\opengl\dll\glew32.dll
   E:\Documents\Courses\5th_Year\F19\ECSE546\image_synthesis\externals\opengl\dll\SDL2.dll

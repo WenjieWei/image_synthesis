@@ -135,7 +135,7 @@ void Renderer::render() {
 					break;
 				}
 				else {
-					renderpass->updateCamera(event);
+					renderpass->handleEvents(event);
 					renderpass->render();
 					SDL_GL_SwapWindow(renderpass->window);
 				}

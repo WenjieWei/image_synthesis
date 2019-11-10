@@ -122,12 +122,14 @@
     <ClInclude Include="src\integrators\direct.h" />
     <ClInclude Include="src\integrators\normal.h" />
     <ClInclude Include="src\integrators\path.h" />
+    <ClInclude Include="src\integrators\polygonal.h" />
     <ClInclude Include="src\integrators\ppm.h" />
     <ClInclude Include="src\integrators\ro.h" />
     <ClInclude Include="src\integrators\simple.h" />
     <ClInclude Include="src\renderpasses\direct.h" />
     <ClInclude Include="src\renderpasses\gi.h" />
     <ClInclude Include="src\renderpasses\normal.h" />
+    <ClInclude Include="src\renderpasses\polygonal.h" />
     <ClInclude Include="src\renderpasses\simple.h" />
     <ClInclude Include="src\renderpasses\ssao.h" />
     <ClInclude Include="src\core\renderpass.h" />
@@ -135,11 +137,14 @@
   <ItemGroup>
     <None Include="src\shaders\diffuse.fs" />
     <None Include="src\shaders\emitter.fs" />
+    <None Include="src\shaders\emitter_polygonal.fs" />
     <None Include="src\shaders\gi.fs" />
     <None Include="src\shaders\gi.vs" />
     <None Include="src\shaders\normal.fs" />
     <None Include="src\shaders\normal.vs" />
     <None Include="src\shaders\phong.fs" />
+    <None Include="src\shaders\polygonal.fs" />
+    <None Include="src\shaders\polygonal.vs" />
     <None Include="src\shaders\simple.vs" />
     <None Include="src\shaders\srgb.fs" />
   </ItemGroup>

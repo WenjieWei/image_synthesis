@@ -106,6 +106,12 @@ struct PolygonalPass : RenderPass {
          *      e.g. using: `emitterVertexData.push_back(vertex.x);`
          */
         // TODO(A4): Implement this
+		// Create new sampler and retrieve emitter
+		Sampler* sampler = new Sampler(260685967);
+		Emitter em = scene.emitters[0];
+
+		// Compute # of triangles on emitter
+
 
         // Create vertex buffers
         const auto& shapes = scene.worldData.shapes;

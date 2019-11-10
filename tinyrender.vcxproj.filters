@@ -104,6 +104,12 @@
     <ClInclude Include="src\renderpasses\simple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\integrators\polygonal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderpasses\polygonal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\diffuse.fs" />
@@ -115,5 +121,8 @@
     <None Include="src\shaders\simple.vs" />
     <None Include="src\shaders\srgb.fs" />
     <None Include="src\shaders\phong.fs" />
+    <None Include="src\shaders\emitter_polygonal.fs" />
+    <None Include="src\shaders\polygonal.fs" />
+    <None Include="src\shaders\polygonal.vs" />
   </ItemGroup>
 </Project>
