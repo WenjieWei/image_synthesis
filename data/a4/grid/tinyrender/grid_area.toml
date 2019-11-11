@@ -15,5 +15,5 @@ height = 400
 type = "polygonal"
 realtime = false
 method = "area"
-traceShadows = true
+traceShadows = false
 spp = 4

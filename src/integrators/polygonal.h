@@ -197,7 +197,6 @@ TR_NAMESPACE_BEGIN
 			float cosTheta_o = glm::abs(glm::dot(ne, glm::normalize(-i.wi)));
 			float Jacobian = cosTheta_o / glm::distance2(i.p, pe);
 
-			//if (m_traceShadows) {
 			v3f wiW = i.wi;
 			SurfaceInteraction shadowInteraction;
 			Ray shadowRay(i.p, wiW);
@@ -211,7 +210,7 @@ TR_NAMESPACE_BEGIN
 
 			// evaluate g(x)
 			g = getBSDF(i)->eval(i) * Jacobian * scene.getFirstLightIntensity();
-			
+
 			if (pdf != 0) {
 				sum = (h - m_alpha * g) / pdf;
 			}
@@ -231,7 +230,7 @@ TR_NAMESPACE_BEGIN
 			if (getEmission(i) != v3f(0.f)) {
 				size_t emId = getEmitterIDByShapeID(i.shapeID);
 				Emitter em = getEmitterByID(emId);
-				Lr = em.getRadiance();				
+				Lr = em.getRadiance();
 			}
 			else {
 				// Analytic part
@@ -239,12 +238,12 @@ TR_NAMESPACE_BEGIN
 				Emitter em = scene.emitters[0];
 
 				// Perform Monte Carlo for h-ag. 
-				for (int j = 0; j < m_visSamples; j++){
+				for (int j = 0; j < m_visSamples; j++) {
 					// Do the control variance. 
 					H += estimateVisDiff(sampler, i, em);
 				}
 				H = H / m_visSamples;
-				G = renderAnalytic(ray, sampler);				
+				G = renderAnalytic(ray, sampler);
 
 				Lr = m_alpha * G + H;
 			}
@@ -297,7 +296,12 @@ TR_NAMESPACE_BEGIN
 
 						i.wi = i.frameNs.toLocal(i.wi);
 						if (pdf != 0) {
-							Lr = getBSDF(i)->eval(i) * Jacobian * emission / pdf;
+							if (m_traceShadows) {
+								Lr = getBSDF(i)->eval(i) * Jacobian * emission / pdf;
+							}
+							else {
+								Lr = Lr = getBSDF(i)->eval(i) * Jacobian * scene.getFirstLightIntensity() / pdf;
+							}
 						}
 					}
 				}
