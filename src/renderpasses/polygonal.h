@@ -202,7 +202,7 @@ TR_NAMESPACE_BEGIN
 		float aspectRatio = (float)scene.config.width / scene.config.height;
 
 		float px, py;
-		v4f rayDir, pix; 
+		v4f rayDir;
 		for (int y = 0; y < scene.config.height; ++y) {
 			for (int x = 0; x < scene.config.width; ++x) {
 				// dx and dy are treated as 0.5 here as scene.config.spp is not defined. 
@@ -211,8 +211,6 @@ TR_NAMESPACE_BEGIN
 				px = ((2 * (x + dx) / scene.config.width) - 1) * aspectRatio * fov;
 				py = (1 - (2 * (y + dy) / scene.config.height)) * fov;
 
-				//compute the ray direction with the camera plane pixel center
-				v4f RayOrigin(0, 0, 0, 1);
 				rayDir = v4f(px, py, -1, 1) - v4f(0, 0, 0, 1);
 
 				rayDir = inverseView * rayDir;
@@ -220,7 +218,7 @@ TR_NAMESPACE_BEGIN
 				Ray ray = Ray(camEye, (v3f)rayDir);
 
 				v3f D = -polygonalIntegrator->estimateVisDiffRealTime(ray, *sampler, emitter);
-				
+
 				if (samplesAccumulated == 0) {
 					cvTermData[(x + y * scene.config.width) * 3] = D.x;
 					cvTermData[(x + y * scene.config.width) * 3 + 1] = D.y;

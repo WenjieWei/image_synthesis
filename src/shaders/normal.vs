@@ -21,7 +21,6 @@ out vec3 vNormal;
 void main()
 {
     // TODO(A1): Implement this
-	
 	// High level: 
 	// 1. Take Triangles,
 	// 2. Figure out which pixels they cover. 

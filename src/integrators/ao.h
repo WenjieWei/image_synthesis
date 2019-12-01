@@ -94,7 +94,7 @@ struct AOIntegrator : Integrator {
 			pdf = Warp::squareToCosineHemispherePdf(i.wi);
 		}
 
-        return Li / pdf;
+		return Li / pdf;
     }
 };
 

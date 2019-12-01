@@ -113,18 +113,18 @@ bool Renderer::init(const bool isRealTime, bool nogui) {
 }
 
 void Renderer::render() {
-    if (realTime) {
+	if (realTime) {
 
 		if (nogui) return renderpass->render(); // Simply render a single image if --nogui is specified
 
-        /**
-         * 1) Detect and handle the quit event.
-         * 2) Call the render function using renderpass->render().
-         * 3) Output the rendered image into the GUI window using SDL_GL_SwapWindow(renderpass->window).
-         */
-        // TODO(A1): Implement this
-		// TODO(A1): Implement this
-		// Start an infinite loop first. 
+		/**
+		 * 1) Detect and handle the quit event.
+		 * 2) Call the render function using renderpass->render().
+		 * 3) Output the rendered image into the GUI window using SDL_GL_SwapWindow(renderpass->window).
+		 */
+		 // TODO(A1): Implement this
+		 // TODO(A1): Implement this
+		 // Start an infinite loop first. 
 		while (1) {
 			// Detect the quit event. 
 			SDL_Event event;
@@ -141,19 +141,20 @@ void Renderer::render() {
 				}
 			}
 		}
-    } else {
-        /**
-         * 1) Calculate the camera perspective, the camera-to-world transformation matrix and the aspect ratio.
-         * 2) Clear integral RGB buffer.
-         * 3) Loop over all pixels on the image plane.
+	}
+	else {
+		/**
+		 * 1) Calculate the camera perspective, the camera-to-world transformation matrix and the aspect ratio.
+		 * 2) Clear integral RGB buffer.
+		 * 3) Loop over all pixels on the image plane.
 				- For the outermost loop, you should use `ThreadPool::ParallelFor(...)` for faster execution *in release mode only*.
 				  You can use the `#ifdef NDEBUG` macro to detect when the code is running in release mode.
-         * 4) Generate `spp` number of rays randomly through each pixel.
-         * 5) Splat their contribution onto the image plane.
+		 * 4) Generate `spp` number of rays randomly through each pixel.
+		 * 5) Splat their contribution onto the image plane.
 		 * HINT: All configuration options and camera properties can be found in object `scene.config`.
-         */
-        // TODO(A1): Implement this
-		 // fov is the field of view in degree. 
+		 */
+		 // TODO(A1): Implement this
+		  // fov is the field of view in degree. 
 		float fov = scene.config.camera.fov;
 		// Vector contains the coordinate of the central pixel that camera is looking at. 
 		v3f at = scene.config.camera.at;
@@ -231,7 +232,7 @@ void Renderer::render() {
 				integrator->rgb->data[y * imageWidth + x] = color;
 			}
 		});
-    }
+	}
 }
 
 /**

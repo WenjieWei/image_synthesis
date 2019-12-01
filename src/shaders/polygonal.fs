@@ -101,4 +101,3 @@ void main()
 
 	color = G + alpha;
 }
-
