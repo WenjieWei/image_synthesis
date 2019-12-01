@@ -69,19 +69,6 @@ TR_NAMESPACE_BEGIN
 		return clampBelow(Li, 0.f);
 	}
 
-	/**
-	 *	This function performs direct illumination shading for the hit point using emitter area sampling.
-	 *	The implementation is very similar to the polygonal integrator.
-	 *	High level: sample the emitter by sampleEmitterByPosition, and use (pe - hit.p) as the incident ray
-	 *	Compute geometry jacobian terms, bsdf, and the emitter contribution at the shading point.
-	 *
-	 *	Arguments:
-	 *	- Ray& ray: the current ray that's being traced;
-	 *	- Sampler& sampler: rand number sampler.
-	 *	- SurfaceInteraction& hit: the interaction point.
-	 *	Returns:
-	 *	- The direct illumination value at the shading point.
-	 */
 	v3f directShading(const Ray& ray, Sampler& sampler, SurfaceInteraction& hit) const {
 		v3f Ldir(0.f);
 
@@ -184,8 +171,7 @@ TR_NAMESPACE_BEGIN
 				Li = getEmission(hit);
 		}
 		else {
-			int depth = 0;
-			Li = clampBelow(shade(ray, sampler, hit, depth), 0.f);
+			Li = shade(ray, sampler, hit, 0);
 		}
 
 		return Li;

@@ -1,6 +1,5 @@
 /*
 	This file is part of TinyRender, an educative rendering system.
-
 	Designed for ECSE 446/546 Realistic/Advanced Image Synthesis.
 	Derek Nowrouzezahrai, McGill University.
 */
@@ -42,8 +41,6 @@ TR_NAMESPACE_BEGIN
 		// TODO(A5): Implement this
 		// Set the shading point directly to the scene vertex location.
 		obj.nVerts = scene.getObjectNbVertices(objectIdx);
-		// Resize vertices vector to contain all attributes of all vertices
-		//obj.vertices.resize(obj.nVerts * N_ATTR_PER_VERT);
 
 		// Iterate over all vertices.
 		for (int vertexIdx = 0; vertexIdx < obj.nVerts; vertexIdx++) {
@@ -55,14 +52,6 @@ TR_NAMESPACE_BEGIN
 			v3f vNorm = scene.getObjectVertexNormal(objectIdx, vertexIdx);
 			Frame nFrame = Frame(glm::normalize(vNorm));
 
-			// List of attributes of surface interaction:
-			// v3f p, wo, wi
-			// float t, u, v
-			// size_t shapeID, primID
-			// Frame frameNs, frameNg
-			// int matID;
-			// unsigned int sampledComponent, sampledType
-			// Create geometry and shading frames. 
 			i.frameNg = nFrame;
 			i.frameNs = nFrame;
 			// Create arbitrary wo wi and shift the vertex position. 
@@ -73,14 +62,13 @@ TR_NAMESPACE_BEGIN
 			i.shapeID = objectIdx;
 			i.matID = scene.getMaterialID(objectIdx, i.primID);
 
-			// Start tracing the ray from the vertex we want to shade
-			Ray ray(i.p, vNorm);
-			Sampler sampler = Sampler(260685967);
-
 			// Compute RGB values
 			v3f rgb(0.f);
 			for (int j = 0; j < m_samplePerVertex; j++) {
-				rgb += m_ptIntegrator->renderExplicit(ray, sampler, i);
+				Sampler sampler(260685967 + j);
+				SurfaceInteraction hit = i;
+				Ray ray(i.p, Warp::squareToUniformSphere(sampler.next2D()), Epsilon);
+				rgb += m_ptIntegrator->renderExplicit(ray, sampler, hit);
 			}
 			rgb /= m_samplePerVertex;
 
