@@ -1,8 +1,8 @@
 /*
-    This file is part of TinyRender, an educative rendering system.
+	This file is part of TinyRender, an educative rendering system.
 
-    Designed for ECSE 446/546 Realistic/Advanced Image Synthesis.
-    Derek Nowrouzezahrai, McGill University.
+	Designed for ECSE 446/546 Realistic/Advanced Image Synthesis.
+	Derek Nowrouzezahrai, McGill University.
 */
 
 #pragma once
@@ -12,13 +12,13 @@ TR_NAMESPACE_BEGIN
 /**
  * Path tracer integrator
  */
-struct PathTracerIntegrator : Integrator {
-    explicit PathTracerIntegrator(const Scene& scene) : Integrator(scene) {
-        m_isExplicit = scene.config.integratorSettings.pt.isExplicit;
-        m_maxDepth = scene.config.integratorSettings.pt.maxDepth;
-        m_rrDepth = scene.config.integratorSettings.pt.rrDepth;
-        m_rrProb = scene.config.integratorSettings.pt.rrProb;
-    }
+	struct PathTracerIntegrator : Integrator {
+	explicit PathTracerIntegrator(const Scene& scene) : Integrator(scene) {
+		m_isExplicit = scene.config.integratorSettings.pt.isExplicit;
+		m_maxDepth = scene.config.integratorSettings.pt.maxDepth;
+		m_rrDepth = scene.config.integratorSettings.pt.rrDepth;
+		m_rrProb = scene.config.integratorSettings.pt.rrProb;
+	}
 
 	v3f renderImplicit(const Ray& ray, Sampler& sampler, SurfaceInteraction& hit) const {
 		v3f Li(0.f);
@@ -70,17 +70,17 @@ struct PathTracerIntegrator : Integrator {
 	}
 
 	/**
-	 *	This function performs direct illumination shading for the hit point using emitter area sampling. 
+	 *	This function performs direct illumination shading for the hit point using emitter area sampling.
 	 *	The implementation is very similar to the polygonal integrator.
 	 *	High level: sample the emitter by sampleEmitterByPosition, and use (pe - hit.p) as the incident ray
 	 *	Compute geometry jacobian terms, bsdf, and the emitter contribution at the shading point.
-	 *	
-	 *	Arguments: 
+	 *
+	 *	Arguments:
 	 *	- Ray& ray: the current ray that's being traced;
-	 *	- Sampler& sampler: rand number sampler. 
-	 *	- SurfaceInteraction& hit: the interaction point. 
+	 *	- Sampler& sampler: rand number sampler.
+	 *	- SurfaceInteraction& hit: the interaction point.
 	 *	Returns:
-	 *	- The direct illumination value at the shading point. 
+	 *	- The direct illumination value at the shading point.
 	 */
 	v3f directShading(const Ray& ray, Sampler& sampler, SurfaceInteraction& hit) const {
 		v3f Ldir(0.f);
@@ -89,7 +89,7 @@ struct PathTracerIntegrator : Integrator {
 		v3f pe, ne;
 		size_t id = selectEmitter(sampler.next(), emPdf);
 		const Emitter& em = getEmitterByID(id);
-				
+
 		sampleEmitterPosition(sampler, em, ne, pe, pdf_A);
 		v3f wiW = pe - hit.p;
 		hit.wi = hit.frameNs.toLocal(wiW);
@@ -106,9 +106,9 @@ struct PathTracerIntegrator : Integrator {
 				float pdf = emPdf * pdf_A;
 				if (pdf != 0) {
 					Ldir = getBSDF(hit)->eval(hit) * Jacobian * getEmission(shadowInteraction) / pdf;
-				}					
+				}
 			}
-		}		
+		}
 
 		return Ldir;
 	}
@@ -118,21 +118,20 @@ struct PathTracerIntegrator : Integrator {
 		float rr_factor = 1;
 
 		// Check the condition to stop the recursion
-		if (m_maxDepth >= 0) {	
-			// Regular recursion termination, check if depth has reached the max depth
-			if (depth >= m_maxDepth) return v3f(0.f);
-		}
-		else {
+		if (m_maxDepth == -1) {
 			// RR recursion termination. 
 			if (depth >= m_rrDepth) {
-				if (m_rrProb > 0.5) {
-					if (sampler.next() >= m_rrProb) return v3f(0.f);
-					else rr_factor = m_rrProb;
-				}
-				else {
-					if (sampler.next() <= m_rrProb) return v3f(0.f);
-					else rr_factor = 1 - m_rrProb;
-				}
+				if (sampler.next() >= m_rrProb) return v3f(0.f);
+				else rr_factor = m_rrProb;
+			}
+		}
+		else {
+			// Regular recursion termination, check if depth has reached the max depth
+			if (depth >= m_maxDepth) return v3f(0.f);
+
+			if (m_rrDepth > 0 && depth >= m_rrDepth) {
+				if (sampler.next() >= m_rrProb) return v3f(0.f);
+				else rr_factor = m_rrProb;
 			}
 		}
 
@@ -168,7 +167,7 @@ struct PathTracerIntegrator : Integrator {
 						break;
 					}
 				}
-			}				
+			}
 		}
 
 		Li = Ldir + Lind / rr_factor;
@@ -176,10 +175,10 @@ struct PathTracerIntegrator : Integrator {
 		return Li;
 	}
 
-    v3f renderExplicit(const Ray& ray, Sampler& sampler, SurfaceInteraction& hit) const {
-        v3f Li(0.f);
+	v3f renderExplicit(const Ray& ray, Sampler& sampler, SurfaceInteraction& hit) const {
+		v3f Li(0.f);
 
-        // TODO(A5): Implement this
+		// TODO(A5): Implement this
 		if (m_maxDepth == 0) {
 			if (scene.bvh->intersect(ray, hit))
 				Li = getEmission(hit);
@@ -189,27 +188,27 @@ struct PathTracerIntegrator : Integrator {
 			Li = clampBelow(shade(ray, sampler, hit, depth), 0.f);
 		}
 
-        return Li;
-    }
+		return Li;
+	}
 
 
-    v3f render(const Ray& ray, Sampler& sampler) const override {
-        Ray r = ray;
-        SurfaceInteraction hit;
+	v3f render(const Ray& ray, Sampler& sampler) const override {
+		Ray r = ray;
+		SurfaceInteraction hit;
 
-        if (scene.bvh->intersect(r, hit)) {
-            if (m_isExplicit)
-                return this->renderExplicit(ray, sampler, hit);
-            else
+		if (scene.bvh->intersect(r, hit)) {
+			if (m_isExplicit)
+				return this->renderExplicit(ray, sampler, hit);
+			else
 				return this->renderImplicit(ray, sampler, hit);
-        }
-        return v3f(0.0);
-    }
+		}
+		return v3f(0.0);
+	}
 
-    int m_maxDepth;     // Maximum number of bounces
-    int m_rrDepth;      // When to start Russian roulette
-    float m_rrProb;     // Russian roulette probability
-    bool m_isExplicit;  // Implicit or explicit
+	int m_maxDepth;     // Maximum number of bounces
+	int m_rrDepth;      // When to start Russian roulette
+	float m_rrProb;     // Russian roulette probability
+	bool m_isExplicit;  // Implicit or explicit
 };
 
 TR_NAMESPACE_END
